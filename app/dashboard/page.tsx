@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useEffect, useState, useCallback } from "react"
 import { createClient } from "@/lib/supabase/client"
 import { useRouter } from "next/navigation"
 import MainLayout from "@/components/dashboard/main-layout"
@@ -41,6 +41,22 @@ export default function DashboardPage() {
   const router = useRouter()
   const supabase = createClient()
 
+  const fetchDashboardData = useCallback(async () => {
+    try {
+      const response = await fetch("/api/dashboard")
+      if (response.status === 401) {
+        router.push("/auth/login")
+        return
+      }
+      if (response.ok) {
+        const data = await response.json()
+        setDashboardData(data)
+      }
+    } catch (error) {
+      console.error("Error fetching dashboard data:", error)
+    }
+  }, [router])
+
   useEffect(() => {
     const checkAuthAndSetup = async () => {
       try {
@@ -78,23 +94,7 @@ export default function DashboardPage() {
     }
 
     checkAuthAndSetup()
-  }, [router, supabase])
-
-  const fetchDashboardData = async () => {
-    try {
-      const response = await fetch("/api/dashboard")
-      if (response.status === 401) {
-        router.push("/auth/login")
-        return
-      }
-      if (response.ok) {
-        const data = await response.json()
-        setDashboardData(data)
-      }
-    } catch (error) {
-      console.error("Error fetching dashboard data:", error)
-    }
-  }
+  }, [router, supabase.auth, fetchDashboardData])
 
   const handleSetupComplete = async () => {
     setSetupCompleted(true)

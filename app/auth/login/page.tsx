@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useCallback } from "react"
 import { useRouter } from "next/navigation"
 import { createClient } from "@/lib/supabase/client"
 import { LoginForm } from "@/components/login-form"
@@ -10,28 +10,10 @@ import { Loader2 } from "lucide-react"
 export default function LoginPage() {
   const [showSetupModal, setShowSetupModal] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
-  const [user, setUser] = useState<{ email: string } | null>(null)
   const router = useRouter()
   const supabase = createClient()
 
-  // Check if user is already logged in
-  useEffect(() => {
-    const checkAuth = async () => {
-      const { data: { user } } = await supabase.auth.getUser()
-      if (user) {
-        // User is already logged in, check setup status
-        await handlePostLogin(user.email || "")
-      }
-    }
-    checkAuth()
-  }, [])
-
-  const handleLoginSuccess = async (email: string) => {
-    setUser({ email })
-    await handlePostLogin(email)
-  }
-
-  const handlePostLogin = async (email: string) => {
+  const handlePostLogin = useCallback(async () => {
     setIsLoading(true)
     try {
       // Check setup status
@@ -56,6 +38,22 @@ export default function LoginPage() {
     } finally {
       setIsLoading(false)
     }
+  }, [router])
+
+  // Check if user is already logged in
+  useEffect(() => {
+    const checkAuth = async () => {
+      const { data: { user } } = await supabase.auth.getUser()
+      if (user) {
+        // User is already logged in, check setup status
+        await handlePostLogin()
+      }
+    }
+    checkAuth()
+  }, [handlePostLogin, supabase.auth])
+
+  const handleLoginSuccess = async () => {
+    await handlePostLogin()
   }
 
   const handleSetupComplete = () => {

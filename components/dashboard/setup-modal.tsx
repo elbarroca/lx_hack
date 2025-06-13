@@ -73,7 +73,7 @@ export default function SetupModal({ isOpen, onComplete }: SetupModalProps) {
             Setup Your AI Agent
           </DialogTitle>
           <DialogDescription className="text-gray-400">
-            Configure your Vexa API key to enable Veritas AI's autonomous meeting intelligence.
+            Configure your Vexa API key to enable Veritas AI&apos;s autonomous meeting intelligence.
           </DialogDescription>
         </DialogHeader>
 
@@ -120,7 +120,7 @@ export default function SetupModal({ isOpen, onComplete }: SetupModalProps) {
                   I agree to the terms and conditions
                 </Label>
                 <p className="text-xs text-gray-400 leading-relaxed">
-                  By clicking "Save API Key", you authorize Veritas AI to:
+                  By clicking &quot;Save API Key&quot;, you authorize Veritas AI to:
                   <br />• Join your scheduled meetings as an autonomous agent
                   <br />• Access your calendar to identify meeting times
                   <br />• Process meeting audio for transcription and analysis

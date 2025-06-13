@@ -32,6 +32,10 @@ export async function POST(request: Request) {
       .eq("email", authData.user.email)
       .single()
 
+    if (dbError && dbError.code !== 'PGRST116') {
+      console.error("Database error checking user:", dbError)
+    }
+
     let setupCompleted = false
 
     if (userData && userData.vexa_api_key) {
