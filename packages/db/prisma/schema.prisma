@@ -1,0 +1,70 @@
+// This file is the single source of truth for your database schema.
+// Run `npx prisma db push` to sync this with your Supabase Postgres DB.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL") // This will be your Supabase connection string
+  directUrl = env("DIRECT_URL")
+}
+
+// Stores user information and their critical API keys.
+model User {
+  id           String @id @default(cuid())
+  email        String @unique
+  // Encrypt these values before storing them for security.
+  googleTokens Json?
+  vexoApiKey   String? @db.Text
+  slackUserId  String?
+
+  meetings Meeting[]
+}
+
+// The core object representing a single meeting event.
+model Meeting {
+  id              String       @id @default(cuid())
+  platform        String       @default("google_meet")
+  nativeMeetingId String
+  title           String?
+  scheduledAt     DateTime
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id])
+
+  // Stores the raw, unprocessed JSON transcript array from Vexa.
+  rawTranscript Json?
+  // A meeting has one comprehensive analysis result.
+  analysis      Analysis?
+  // A meeting can have multiple action items.
+  actionItems   ActionItem[]
+
+  // Ensures we never process the same meeting more than once.
+  @@unique([platform, nativeMeetingId])
+}
+
+// Stores the structured output from the Intelligence Agent.
+model Analysis {
+  id             String   @id @default(cuid())
+  summary        String   @db.Text
+  sentiment      String
+  sentimentScore Float
+  keyTopics      String[]
+
+  meetingId String  @unique
+  meeting   Meeting @relation(fields: [meetingId], references: [id], onDelete: Cascade)
+}
+
+// A dedicated table for each identified action item for easy tracking.
+model ActionItem {
+  id              String   @id @default(cuid())
+  taskDescription String   @db.Text
+  owner           String
+  verbatimQuote   String   @db.Text
+  status          String   @default("pending") // 'pending' | 'completed'
+
+  meetingId String
+  meeting   Meeting @relation(fields: [meetingId], references: [id], onDelete: Cascade)
+} 

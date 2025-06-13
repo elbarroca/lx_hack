@@ -1,0 +1,13 @@
+{
+  "name": "@mcp/calendar-sync",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "run": "node -r ts-node/register index.ts"
+  },
+  "dependencies": {
+    "googleapis": "^128.0.0",
+    "ts-node": "^10.9.1",
+    "typescript": "^5.2.2"
+  }
+} 

@@ -1,0 +1,84 @@
+---
+description: 
+globs: 
+alwaysApply: false
+---
+Analysis of Your Idea
+Your proposed system, which you call an "MCP server" (let's assume MCP stands for "Meeting Control Program" or something similar), is an excellent application of this technology.
+Join the Meeting: You would use the POST /bots endpoint to have the Vexa bot join your team's weekly meeting on Google Meet. This is the entry point.
+Get Real-Time Data: Your server would then repeatedly call the GET /transcripts/{platform}/{native_meeting_id} endpoint. This will stream the conversation to your server, including who said what and when. The key here is the "speaker" information in the transcript data, which is crucial for your idea.
+Understand and Distill the Data: This is the "brains" of your operation. Your MCP server would need to have its own logic (likely involving another AI model, like one from OpenAI, Google, or an open-source alternative) to:
+Identify Action Items: Scan the transcript for phrases like "I will," "we need to," "the next step is," or task-oriented language.
+Assign Owners: Correlate the action item with the speaker who committed to it or the person who was assigned the task (e.g., "Bob, can you handle the report?").
+Extract Exact Quotes: Pinpoint the exact sentence or phrase that defines the task.
+Send Personalized Notifications: Once an action item is identified and assigned, your server would trigger an action. Using the Slack API or an email service (like SendGrid or Amazon SES), it would:
+Craft a personalized message.
+Address it to the specific team member (you'd need a way to map meeting participants to their Slack handles or email addresses).
+Include the action item and the direct quote for context, as you brilliantly suggested.
+Why Your Idea is So Strong
+Solves a Real Problem: Manually tracking and assigning tasks from meetings is tedious and prone to error. People forget what they agreed to, and notes can be ambiguous. Your solution automates this entire process.
+Increases Accountability: Sending a direct message to a person with the exact quote of their commitment ("Okay, I will have the draft ready by Thursday.") leaves no room for confusion and significantly increases the likelihood that the task will be completed.
+Leverages the API Perfectly: Your idea uses almost every part of what makes the Vexa API useful: requesting a bot, getting real-time transcripts with speaker data, and acting on that data. You could even use the PATCH /meetings/{...} endpoint at the end to save a summary of all identified action items in the meeting's notes.
+How to Build It (High-Level)
+Your "MCP server" would be a backend application that acts as the middleware between Vexa and your team's communication tools.
+Vexa Integration: It would use the Vexa API key to manage the bot and fetch transcripts.
+Natural Language Processing (NLP) Layer: It would process the transcript text to find and structure the action items. This is the most complex and interesting part.
+Communication Integration: It would hold the API keys for Slack and/or your email service to send out the notifications.
+User Mapping: You would need a simple database or configuration file to map the names of people in the meeting (as identified by Vexa) to their corresponding Slack ID or email address.
+You've conceptualized a powerful workflow automation tool. Instead of just disliking the translation feature, you've zeroed in on a high-value, productivity-focused use case that is exactly the kind of innovation that APIs like Vexa's are meant to inspire. It is an excellent idea.
+ThinkingThoughts
+(experimental)
+Auto
+Expand to view model thoughts
+
+chevron_right
+ThinkingThoughts
+(experimental)
+Auto
+Expand to view model thoughts
+
+chevron_right
+ThinkingThoughts
+(experimental)
+Auto
+Expand to view model thoughts
+
+chevron_right
+ThinkingThoughts
+(experimental)
+Auto
+Expand to view model thoughts
+
+chevron_right
+ThinkingThoughts
+(experimental)
+Auto
+Expand to view model thoughts
+
+chevron_right
+ThinkingThoughts
+(experimental)
+Auto
+Defining Core Components
+I'm now focusing on dissecting the user's initial request. My primary goal is to identify and delineate the critical components needed to build an automated meeting transcription and analysis system. Currently, I'm concentrating on defining these key elements, ensuring I capture the essence of their core requirements.
+Clarifying User Needs
+I'm now fully immersed in understanding the user's specific demands. The primary focus shifts towards dissecting the user's prompt to pinpoint their core requirements and concepts. Crucially, the automation trigger, based on email domains, presents a distinct technical challenge. I'm also zeroing in on UI aspects and the crucial role of an intelligent agent for nuanced analysis and knowledge storage within Supabase.
+Outlining the Architecture
+I'm now outlining a detailed architectural framework for the project. The trigger, which is the system's "ears," will focus on listening to Google Calendar APIs. I'm focusing on the automation engine, using n8n for core processing, as a template and adapting it. I aim to create an intelligent agent for nuanced analysis and knowledge storage, including generating insightful notifications. The system will store knowledge in Supabase.
+Mapping Out Components
+My current focus involves mapping the key components, and thinking through the intricacies of the trigger. I'm prioritizing the Google Calendar API integration as the cornerstone for meeting detection. The UI, using Next.js, will handle onboarding and configuration. I'm focusing on the automation engine, using n8n for core processing, as a template and adapting it. I aim to create an intelligent agent for nuanced analysis and knowledge storage, including generating insightful notifications. The system will store knowledge in Supabase.
+Designing the Meeting Listener
+I'm currently focusing on the core component: the meeting listener. My plan is to watch for meetings based on the Google Calendar API, triggered by user-specified email domains. Using a scheduled task, I'll poll the Google Calendar API every 5 minutes, checking for events with Google Meet links for each user. This will determine if the user has joined a meeting, triggering the workflow.
+Defining the Architecture
+I'm now focusing on defining the architectural framework. The system's trigger will listen to Google Calendar APIs. I'm leveraging n8n's workflow engine for automation, adapting it for this new approach. I will develop an intelligent agent to process the meeting data, store knowledge, and create insightful notifications. The system will store data in Supabase.
+Developing the Meeting Listener
+I'm currently focusing on the development of the meeting listener, which serves as the core of the system. I've designed the listener to use the Google Calendar API, triggered by specific user-defined email domains. The listener will poll the Google Calendar API at scheduled intervals, analyzing events with Google Meet links for each user. Upon detection, it will trigger the workflow.
+Developing the System's Core
+I'm now fully immersed in developing the core system components. The primary focus shifts towards the architecture, specifically the critical trigger for initiating the workflows. I'm focusing on the calendar API, the n8n processing workflow, and the development of the "agent" to effectively manage and process data.
+Developing the Architecture
+I've significantly refined the system architecture. The calendar API is key for the user-specific triggers. n8n's processing workflow is at the system's core, now a chain of LLM calls as a simple agent. This approach, together with the UI dashboard, addresses the diverse project requirements. I'm prioritizing the user experience, building on the initial scope.
+Architecting the System
+I'm now fully immersed in developing the architectural framework. The system centers on the Google Calendar API for trigger and event detection. n8n's workflow engine will orchestrate the core processing, and an intelligent agent will handle complex data analysis and knowledge storage. The chat interface is built to make the data accessible to users.
+Collapse to hide model thoughts
+
+chevron_right
