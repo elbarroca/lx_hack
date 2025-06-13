@@ -18,7 +18,6 @@ interface SetupModalProps {
 
 export default function SetupModal({ isOpen, onComplete }: SetupModalProps) {
   const [vexaApiKey, setVexaApiKey] = useState("")
-  const [openaiApiKey, setOpenaiApiKey] = useState("")
   const [hasConsented, setHasConsented] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -26,8 +25,8 @@ export default function SetupModal({ isOpen, onComplete }: SetupModalProps) {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
 
-    if (!vexaApiKey.trim() || !openaiApiKey.trim()) {
-      setError("Both API keys are required")
+    if (!vexaApiKey.trim()) {
+      setError("Vexa API key is required")
       return
     }
 
@@ -47,13 +46,12 @@ export default function SetupModal({ isOpen, onComplete }: SetupModalProps) {
         },
         body: JSON.stringify({
           vexaApiKey: vexaApiKey.trim(),
-          openaiApiKey: openaiApiKey.trim(),
         }),
       })
 
       if (!response.ok) {
         const data = await response.json()
-        throw new Error(data.error || "Failed to save API keys")
+        throw new Error(data.error || "Failed to save API key")
       }
 
       // Mark setup as complete and close modal
@@ -75,7 +73,7 @@ export default function SetupModal({ isOpen, onComplete }: SetupModalProps) {
             Setup Your AI Agent
           </DialogTitle>
           <DialogDescription className="text-gray-400">
-            Configure your API keys to enable Veritas AI&apos;s autonomous meeting intelligence.
+            Configure your Vexa API key to enable Veritas AI's autonomous meeting intelligence.
           </DialogDescription>
         </DialogHeader>
 
@@ -96,31 +94,13 @@ export default function SetupModal({ isOpen, onComplete }: SetupModalProps) {
               />
               <p className="text-xs text-gray-400">Used for real-time transcription and speaker identification</p>
             </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="openai-key" className="text-sm font-medium">
-                OpenAI API Key
-              </Label>
-              <Input
-                id="openai-key"
-                type="password"
-                placeholder="Enter your OpenAI API key"
-                value={openaiApiKey}
-                onChange={(e) => setOpenaiApiKey(e.target.value)}
-                className="bg-gray-800 border-gray-700 focus:border-green-500"
-                required
-              />
-              <p className="text-xs text-gray-400">
-                Used for intelligent analysis, summaries, and action item extraction
-              </p>
-            </div>
           </div>
 
           <Alert className="bg-blue-500/10 border-blue-500/20">
             <Shield className="h-4 w-4 text-blue-500" />
             <AlertDescription className="text-blue-200">
-              <strong>Security Notice:</strong> Your API keys are encrypted and stored securely. We never share your
-              keys or use them for any purpose other than your meeting analysis.
+              <strong>Security Notice:</strong> Your API key is encrypted and stored securely. We never share your
+              key or use it for any purpose other than your meeting analysis.
             </AlertDescription>
           </Alert>
 
@@ -140,7 +120,7 @@ export default function SetupModal({ isOpen, onComplete }: SetupModalProps) {
                   I agree to the terms and conditions
                 </Label>
                 <p className="text-xs text-gray-400 leading-relaxed">
-                  By clicking &quot;Send Keys&quot;, you authorize Veritas AI to:
+                  By clicking "Save API Key", you authorize Veritas AI to:
                   <br />• Join your scheduled meetings as an autonomous agent
                   <br />• Access your calendar to identify meeting times
                   <br />• Process meeting audio for transcription and analysis
@@ -163,14 +143,14 @@ export default function SetupModal({ isOpen, onComplete }: SetupModalProps) {
               disabled={isLoading || !hasConsented}
               className="flex-1 bg-green-500 hover:bg-green-600 text-black font-medium"
             >
-              {isLoading ? "Setting up..." : "Send Keys & Continue"}
+              {isLoading ? "Setting up..." : "Save API Key & Continue"}
             </Button>
           </div>
         </form>
 
         <div className="text-center">
           <p className="text-xs text-gray-400">
-            Need help finding your API keys?{" "}
+            Need help finding your API key?{" "}
             <a href="#" className="text-green-500 hover:underline">
               View setup guide
             </a>

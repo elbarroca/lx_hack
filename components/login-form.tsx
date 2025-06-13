@@ -10,7 +10,11 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 
-export function LoginForm() {
+interface LoginFormProps {
+  onLoginSuccess?: (email: string) => Promise<void>
+}
+
+export function LoginForm({ onLoginSuccess }: LoginFormProps) {
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
   const [error, setError] = useState<string | null>(null)
@@ -31,14 +35,26 @@ export function LoginForm() {
         body: JSON.stringify({ email, password }),
       })
 
+      const data = await response.json()
+
       if (!response.ok) {
-        const data = await response.json()
         setError(data.error || "Login failed")
         setIsLoading(false)
         return
       }
 
-      router.push("/dashboard")
+      // If onLoginSuccess callback is provided, use it (for login page flow)
+      if (onLoginSuccess) {
+        await onLoginSuccess(email)
+      } else {
+        // Default behavior - redirect based on setup status
+        if (data.setupCompleted) {
+          router.push("/dashboard")
+        } else {
+          router.push("/auth/setup")
+        }
+      }
+      
       router.refresh()
 
     } catch (err: unknown) {
@@ -54,7 +70,7 @@ export function LoginForm() {
     <form onSubmit={handleSubmit} className="w-full">
       <div className="flex flex-col gap-6">
         <div className="grid gap-3">
-          <Label htmlFor="email">Email</Label>
+          <Label htmlFor="email" className="text-white">Email</Label>
           <Input
             id="email"
             type="email"
@@ -62,12 +78,12 @@ export function LoginForm() {
             required
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            className="bg-gray-900 border-gray-800 focus:border-green-500"
+            className="bg-gray-900 border-gray-800 focus:border-green-500 text-white"
           />
         </div>
         <div className="grid gap-3">
           <div className="flex items-center">
-            <Label htmlFor="password">Password</Label>
+            <Label htmlFor="password" className="text-white">Password</Label>
             <Link
               href="/auth/forgot-password"
               className="ml-auto inline-block text-sm text-green-500 underline-offset-4 hover:underline"
@@ -81,7 +97,7 @@ export function LoginForm() {
             required
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            className="bg-gray-900 border-gray-800 focus:border-green-500"
+            className="bg-gray-900 border-gray-800 focus:border-green-500 text-white"
           />
         </div>
         {error && <p className="text-sm text-red-500">{error}</p>}
@@ -94,7 +110,7 @@ export function LoginForm() {
         </Button>
       </div>
       <div className="mt-6 text-center text-sm">
-        Don&apos;t have an account?{" "}
+        <span className="text-gray-400">Don&apos;t have an account?{" "}</span>
         <Link href="/auth/sign-up" className="text-green-500 underline underline-offset-4 hover:text-green-400">
           Sign up
         </Link>

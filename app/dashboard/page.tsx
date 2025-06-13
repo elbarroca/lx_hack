@@ -56,6 +56,11 @@ export default function DashboardPage() {
 
         // Check setup status
         const setupResponse = await fetch("/api/user/setup-status")
+        if (setupResponse.status === 401) {
+          router.push("/auth/login")
+          return
+        }
+        
         if (setupResponse.ok) {
           const { setupCompleted: isSetupCompleted } = await setupResponse.json()
           setSetupCompleted(isSetupCompleted)
@@ -78,6 +83,10 @@ export default function DashboardPage() {
   const fetchDashboardData = async () => {
     try {
       const response = await fetch("/api/dashboard")
+      if (response.status === 401) {
+        router.push("/auth/login")
+        return
+      }
       if (response.ok) {
         const data = await response.json()
         setDashboardData(data)
