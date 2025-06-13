@@ -1,5 +1,7 @@
+"use client"
 import { Button } from "@/components/ui/button"
 import Link from "next/link"
+import { redirect } from "next/navigation"
 
 interface FinalCTAProps {
   isLoggedIn: boolean
@@ -16,11 +18,11 @@ export default function FinalCTA({ isLoggedIn }: FinalCTAProps) {
         </p>
 
         {isLoggedIn ? (
-          <Link href="/dashboard">
-            <Button size="lg" className="bg-green-500 hover:bg-green-600 text-black font-medium px-8 py-6 text-lg">
+          <div className="flex justify-center">
+            <Button onClick={() => redirect("/dashboard")} size="lg" className="bg-green-500 hover:bg-green-600 text-black font-medium px-8 py-6 text-lg">
               Go to Dashboard
             </Button>
-          </Link>
+          </div>
         ) : (
           <Link href="/auth/signup">
             <Button size="lg" className="bg-green-500 hover:bg-green-600 text-black font-medium px-8 py-6 text-lg">
