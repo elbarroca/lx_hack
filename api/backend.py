@@ -68,20 +68,3 @@ def handler(event, context):
                 "sys_path": sys.path[:3]  # First 3 entries for debugging
             })
         }
-
-# Alternative health check endpoint
-def health_check():
-    """Simple health check when FastAPI isn't available"""
-    return {
-        "statusCode": 200,
-        "headers": {
-            "Content-Type": "application/json",
-            "Access-Control-Allow-Origin": "*",
-        },
-        "body": json.dumps({
-            "status": "healthy",
-            "service": "veritas-ai-backend",
-            "message": "Backend service is running on Vercel",
-            "version": "1.0.0"
-        })
-    } 
