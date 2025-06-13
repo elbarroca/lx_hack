@@ -39,8 +39,8 @@ export default async function ProtectedPage() {
       </div>
       <div className="flex-1 w-full flex flex-col bg-black text-white">
         <HeroSection isLoggedIn={!!data?.user} />
-        {/* <SocialProofBar />
-        <HowItWorks />
+        {/* <SocialProofBar /> */}
+        {/* <HowItWorks />
         <FeatureDeepDive />
         <SecuritySection />
         <FinalCTA isLoggedIn={!!data?.user} /> */}
