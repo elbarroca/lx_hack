@@ -4,7 +4,8 @@
     "dev": "next dev --turbopack",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "deploy:functions": "npx supabase functions deploy --project-ref ngpywxuebfxmrjqptjfb"
   },
   "dependencies": {
     "@radix-ui/react-checkbox": "^1.3.1",
