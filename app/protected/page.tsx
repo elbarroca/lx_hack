@@ -1,5 +1,11 @@
-import { redirect } from "next/navigation";
+import HeroSection from "@/components/landing/hero-section"
+// import SocialProofBar from "@/components/landing/social-proof-bar"
+// import HowItWorks from "@/components/landing/how-it-works"
+// import FeatureDeepDive from "@/components/landing/feature-deep-dive"
+// import SecuritySection from "@/components/landing/security-section"
+// import FinalCTA from "@/components/landing/final-cta"
 
+import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { InfoIcon } from "lucide-react";
 import { FetchDataSteps } from "@/components/tutorial/fetch-data-steps";
@@ -31,6 +37,14 @@ export default async function ProtectedPage() {
         <h2 className="font-bold text-2xl mb-4">Next steps</h2>
         <FetchDataSteps />
       </div>
+      <div className="flex-1 w-full flex flex-col bg-black text-white">
+        <HeroSection isLoggedIn={!!data?.user} />
+        {/* <SocialProofBar />
+        <HowItWorks />
+        <FeatureDeepDive />
+        <SecuritySection />
+        <FinalCTA isLoggedIn={!!data?.user} /> */}
+    </div>
     </div>
   );
 }
