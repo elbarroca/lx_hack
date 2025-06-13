@@ -5,10 +5,10 @@ import { createClient } from "@/lib/supabase/client"
 import { useRouter } from "next/navigation"
 import MainLayout from "@/components/dashboard/main-layout"
 import StatsBar from "@/components/dashboard/stats-bar"
-import UpcomingMeetings from "@/components/dashboard/upcoming-meetings"
 import RecentMeetingsFeed from "@/components/dashboard/recent-meetings-feed"
 import SetupModal from "@/components/dashboard/setup-modal"
 import { Loader2 } from "lucide-react"
+import ChatInterface from "@/components/dashboard/ChatInterface"
 
 interface DashboardData {
   stats: {
@@ -136,12 +136,12 @@ export default function DashboardPage() {
 
         <StatsBar stats={dashboardData.stats} />
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          <div className="lg:col-span-1">
-            <UpcomingMeetings meetings={dashboardData.upcomingMeetings} />
+        <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
+          <div className="lg:col-span-3">
+            <RecentMeetingsFeed meetings={dashboardData.recentMeetings} />
           </div>
           <div className="lg:col-span-2">
-            <RecentMeetingsFeed meetings={dashboardData.recentMeetings} />
+            <ChatInterface />
           </div>
         </div>
       </div>

@@ -17,6 +17,12 @@ export async function GET(request: NextRequest) {
       token_hash,
     });
     if (!error) {
+      const { data: userData } = await supabase.auth.getUser();
+      if (userData.user) {
+        await supabase.from("profiles").insert([
+          { id: userData.user.id, email: userData.user.email },
+        ]);
+      }
       // redirect user to specified redirect URL or root of app
       redirect(next);
     } else {

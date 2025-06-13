@@ -3,7 +3,6 @@
 import type React from "react"
 
 import { useState } from "react"
-import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -23,7 +22,6 @@ export default function SetupModal({ isOpen, onComplete }: SetupModalProps) {
   const [hasConsented, setHasConsented] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
-  const router = useRouter()
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -60,8 +58,9 @@ export default function SetupModal({ isOpen, onComplete }: SetupModalProps) {
 
       // Mark setup as complete and close modal
       onComplete()
-    } catch (err: any) {
-      setError(err.message || "An unexpected error occurred")
+    } catch (err: unknown) {
+      const errorMessage = err instanceof Error ? err.message : "An unexpected error occurred"
+      setError(errorMessage)
     } finally {
       setIsLoading(false)
     }
@@ -76,7 +75,7 @@ export default function SetupModal({ isOpen, onComplete }: SetupModalProps) {
             Setup Your AI Agent
           </DialogTitle>
           <DialogDescription className="text-gray-400">
-            Configure your API keys to enable Veritas AI's autonomous meeting intelligence.
+            Configure your API keys to enable Veritas AI&apos;s autonomous meeting intelligence.
           </DialogDescription>
         </DialogHeader>
 
@@ -141,7 +140,7 @@ export default function SetupModal({ isOpen, onComplete }: SetupModalProps) {
                   I agree to the terms and conditions
                 </Label>
                 <p className="text-xs text-gray-400 leading-relaxed">
-                  By clicking "Send Keys", you authorize Veritas AI to:
+                  By clicking &quot;Send Keys&quot;, you authorize Veritas AI to:
                   <br />• Join your scheduled meetings as an autonomous agent
                   <br />• Access your calendar to identify meeting times
                   <br />• Process meeting audio for transcription and analysis

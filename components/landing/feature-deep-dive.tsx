@@ -84,7 +84,7 @@ export default function FeatureDeepDive() {
                             JD
                           </div>
                           <div>
-                            <p className="text-gray-300">"I'll have the report ready by Friday."</p>
+                            <p className="text-gray-300">&quot;I&apos;ll have the report ready by Friday.&quot;</p>
                             <div className="mt-2 flex items-center gap-2">
                               <span className="text-xs bg-green-500/20 text-green-500 px-2 py-1 rounded">TASK</span>
                               <span className="text-xs text-gray-400">Due: Friday</span>
@@ -97,7 +97,7 @@ export default function FeatureDeepDive() {
                             AS
                           </div>
                           <div>
-                            <p className="text-gray-300">"I'll schedule the follow-up meeting for next week."</p>
+                            <p className="text-gray-300">&quot;I&apos;ll schedule the follow-up meeting for next week.&quot;</p>
                             <div className="mt-2 flex items-center gap-2">
                               <span className="text-xs bg-green-500/20 text-green-500 px-2 py-1 rounded">TASK</span>
                               <span className="text-xs text-gray-400">Due: Next Week</span>

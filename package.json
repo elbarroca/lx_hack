@@ -5,9 +5,13 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "deploy:functions": "npx supabase functions deploy --project-ref ngpywxuebfxmrjqptjfb"
+    "deploy:functions": "npx supabase functions deploy --project-ref ngpywxuebfxmrjqptjfb",
+    "mcp:dev": "tsx mcp-server.ts",
+    "mcp:build": "tsc mcp-server.ts --outDir dist --module ESNext --target ES2022 --moduleResolution node",
+    "mcp:start": "node dist/mcp-server.js"
   },
   "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.12.3",
     "@radix-ui/react-checkbox": "^1.3.1",
     "@radix-ui/react-dialog": "^1.1.14",
     "@radix-ui/react-dropdown-menu": "^2.1.14",
@@ -23,22 +27,27 @@
     "lucide-react": "^0.511.0",
     "next": "latest",
     "next-themes": "^0.4.6",
+    "openai": "^5.3.0",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
-    "tailwind-merge": "^3.3.0"
+    "tailwind-merge": "^3.3.0",
+    "zod": "^3.24.1"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3",
     "@types/axios": "^0.9.36",
+    "@types/express": "^5.0.3",
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "autoprefixer": "^10.4.20",
     "eslint": "^9",
     "eslint-config-next": "15.3.1",
+    "express": "^5.1.0",
     "postcss": "^8",
     "tailwindcss": "^3.4.1",
     "tailwindcss-animate": "^1.0.7",
+    "tsx": "^4.20.3",
     "typescript": "^5"
   }
 }

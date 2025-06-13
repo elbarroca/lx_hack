@@ -1,6 +1,10 @@
 import { createClient } from "@/lib/supabase/server"
 import { NextResponse } from "next/server"
-import { redirect } from "next/navigation"
+import OpenAI from "openai"
+
+const openai = new OpenAI({
+  apiKey: process.env.OPENAI_API_KEY,
+})
 
 export async function GET() {
   const supabase = await createClient()
@@ -11,8 +15,6 @@ export async function GET() {
   if (error || !data?.user) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
   }
-
-  const userId = data.user.id
 
   try {
     // In a real app, these would be actual database queries
@@ -92,5 +94,80 @@ export async function GET() {
   } catch (error) {
     console.error("Error fetching dashboard data:", error)
     return NextResponse.json({ error: "Failed to fetch dashboard data" }, { status: 500 })
+  }
+}
+
+export async function POST(req: Request) {
+  try {
+    const supabase = await createClient()
+    const { data: userData, error: authError } = await supabase.auth.getUser()
+
+    if (authError || !userData?.user) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+    }
+
+    const { message } = await req.json()
+    if (!message) {
+      return NextResponse.json({ error: "Message is required" }, { status: 400 })
+    }
+
+    // 1. Fetch recent meetings and their transcripts for context
+    const { data: meetings, error: meetingsError } = await supabase
+      .from("meetings")
+      .select(`
+        id,
+        meeting_title,
+        transcripts ( transcript_text )
+      `)
+      .eq("user_id", userData.user.id)
+      .order("started_at", { ascending: false })
+      .limit(5)
+
+    if (meetingsError) {
+      console.error("Error fetching meetings:", meetingsError)
+      return NextResponse.json({ error: "Failed to fetch meeting data" }, { status: 500 })
+    }
+
+    // 2. Format the data for the LLM prompt
+    const context = meetings
+      ?.map(
+        (meeting) =>
+          `Meeting Title: ${meeting.meeting_title}\nTranscript:\n${meeting.transcripts[0]?.transcript_text}\n\n---\n\n`
+      )
+      .join("")
+
+    const prompt = `
+You are an intelligent meeting assistant called Vexa. Your goal is to answer questions about a user's past meetings based on the transcripts provided.
+Be concise and helpful. If you don't have enough information to answer the question, say so.
+Do not make up information. Base your answers strictly on the provided context.
+
+Here is the context from the user's recent meetings:
+---
+${context}
+---
+
+Question: "${message}"
+
+Answer:
+`
+
+    // 3. Call OpenAI API
+    const completion = await openai.chat.completions.create({
+      model: "gpt-4o-mini",
+      messages: [{ role: "user", content: prompt }],
+      max_tokens: 500,
+      temperature: 0.2,
+    })
+
+    const reply = completion.choices[0].message?.content?.trim()
+
+    if (!reply) {
+      return NextResponse.json({ error: "Failed to get a response from the assistant." }, { status: 500 })
+    }
+
+    return NextResponse.json({ reply })
+  } catch (error) {
+    console.error("Error in chat handler:", error)
+    return NextResponse.json({ error: "An internal server error occurred." }, { status: 500 })
   }
 }
