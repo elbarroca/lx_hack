@@ -1,9 +1,9 @@
+import MainLayout from "@/components/dashboard/main-layout"
+import StatsBar from "@/components/dashboard/stats-bar"
+import UpcomingMeetings from "@/components/dashboard/upcoming-meetings"
+import RecentMeetingsFeed from "@/components/dashboard/recent-meetings-feed"
 import { createClient } from "@/lib/supabase/server"
 import { redirect } from "next/navigation"
-import MainLayout from "@/components/dashboard/main-layout"
-// import StatsBar from "@/components/dashboard/stats-bar"
-// import UpcomingMeetings from "@/components/dashboard/upcoming-meetings"
-// import RecentMeetingsFeed from "@/components/dashboard/recent-meetings-feed"
 import { Suspense } from "react"
 import { Loader2 } from "lucide-react"
 
@@ -24,7 +24,7 @@ export default async function DashboardPage() {
         <div>
           <h1 className="text-2xl font-bold">Mission Control</h1>
           <p className="text-gray-400 mt-1">Your meeting intelligence at a glance</p>
-        {/* </div>
+        </div>
 
         <Suspense fallback={<LoadingStats />}>
           <StatsBar stats={dashboardData.stats} />
@@ -40,7 +40,7 @@ export default async function DashboardPage() {
             <Suspense fallback={<LoadingCard />}>
               <RecentMeetingsFeed meetings={dashboardData.recentMeetings} />
             </Suspense>
-          </div> */}
+          </div>
         </div>
       </div>
     </MainLayout>
