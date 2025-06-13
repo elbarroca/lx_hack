@@ -1,17 +1,19 @@
+import { createClient } from "@/lib/supabase/server"
 import { NextResponse } from "next/server"
 import { createClient } from "@/lib/supabase/server"
 
 export async function GET() {
-  const supabase = await createClient()
-
-  // Check if user is authenticated
-  const { data: userData, error: authError } = await supabase.auth.getUser()
-
-  if (authError || !userData?.user) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
-  }
 
   try {
+    const supabase = await createClient()
+
+    // Check if user is authenticated
+    const { data: userData, error: authError } = await supabase.auth.getUser()
+
+    if (authError || !userData?.user) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+    }
+
     const userEmail = userData.user.email
 
     // Check if user has completed setup by checking if they have a vexa_api_key

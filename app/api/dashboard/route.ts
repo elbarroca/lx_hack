@@ -1,10 +1,10 @@
 import { createClient } from "@/lib/supabase/server"
 import { NextResponse } from "next/server"
-import OpenAI from "openai"
+// import OpenAI from "openai"
 
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY,
-})
+// const openai = new OpenAI({
+//   apiKey: process.env.OPENAI_API_KEY,
+// })
 
 export async function GET() {
   const supabase = await createClient()
@@ -136,36 +136,38 @@ export async function POST(req: Request) {
       )
       .join("")
 
-    const prompt = `
-You are an intelligent meeting assistant called Vexa. Your goal is to answer questions about a user's past meetings based on the transcripts provided.
-Be concise and helpful. If you don't have enough information to answer the question, say so.
-Do not make up information. Base your answers strictly on the provided context.
+//     const prompt = `
+// You are an intelligent meeting assistant called Vexa. Your goal is to answer questions about a user's past meetings based on the transcripts provided.
+// Be concise and helpful. If you don't have enough information to answer the question, say so.
+// Do not make up information. Base your answers strictly on the provided context.
 
-Here is the context from the user's recent meetings:
----
-${context}
----
+// Here is the context from the user's recent meetings:
+// ---
+// ${context}
+// ---
 
-Question: "${message}"
+// Question: "${message}"
 
-Answer:
-`
+// Answer:
+// `
 
-    // 3. Call OpenAI API
-    const completion = await openai.chat.completions.create({
-      model: "gpt-4o-mini",
-      messages: [{ role: "user", content: prompt }],
-      max_tokens: 500,
-      temperature: 0.2,
-    })
+//     // 3. Call OpenAI API
+//     const completion = await openai.chat.completions.create({
+//       model: "gpt-4o-mini",
+//       messages: [{ role: "user", content: prompt }],
+//       max_tokens: 500,
+//       temperature: 0.2,
+//     })
 
-    const reply = completion.choices[0].message?.content?.trim()
+//     const reply = completion.choices[0].message?.content?.trim()
 
-    if (!reply) {
-      return NextResponse.json({ error: "Failed to get a response from the assistant." }, { status: 500 })
-    }
+//     if (!reply) {
+//       return NextResponse.json({ error: "Failed to get a response from the assistant." }, { status: 500 })
+//     }
 
-    return NextResponse.json({ reply })
+    // return NextResponse.json({ reply })
+    return NextResponse.json({ success: true })
+
   } catch (error) {
     console.error("Error in chat handler:", error)
     return NextResponse.json({ error: "An internal server error occurred." }, { status: 500 })
