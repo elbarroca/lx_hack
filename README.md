@@ -1,6 +1,3 @@
-![image](https://github.com/user-attachments/assets/05ce678c-2cc0-4b2b-9905-f9cfa6d114af)
-![image](https://github.com/user-attachments/assets/05ce678c-2cc0-4b2b-9905-f9cfa6d114af)
-
 ---
 
 # Veritas AI - your personal meeting assistant 🤖
@@ -9,7 +6,7 @@
 [![Tech: LLM Agent](https://img.shields.io/badge/Tech-LLM_Agent-blueviolet)](https://openai.com)
 [![Platform: Vexa AI](https://img.shields.io/badge/Transcription-Vexa_AI-orange)](https://vexa.ai/)
 
-This project automates the process of transcribing Google Meet calls and generating intelligent analysis using an LLM. It acts as a powerful agent that joins meetings, captures the conversation, and produces a structured summary, action items, and more, creating a verifiable source of truth from every call.
+Veritas AI automates the process of transcribing Google Meet calls and generating intelligent analysis using an LLM. It acts as a powerful agent that joins meetings, captures the conversation, and produces a structured summary, action items, and more, creating a verifiable source of truth from every call.
 
 ## The Problem 🤔
 
@@ -18,6 +15,10 @@ In any organization, countless hours are spent in meetings where critical decisi
 ## The Solution ✨
 
 This workflow provides a robust, automated solution. By deploying an AI agent into your Google Meet calls, you can create a permanent, intelligent, and queryable record of every conversation.
+
+Here we can check the full workflow of the agent:
+
+![image](https://github.com/user-attachments/assets/05ce678c-2cc0-4b2b-9905-f9cfa6d114af)
 
 ### Key Features:
 -   ▶️ **Manual or Automated Trigger:** Kick off the workflow for any Google Meet call.
