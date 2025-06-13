@@ -120,7 +120,7 @@ export default function SetupModal({ isOpen, onComplete }: SetupModalProps) {
                   I agree to the terms and conditions
                 </Label>
                 <p className="text-xs text-gray-400 leading-relaxed">
-                  By clicking &quot;Save API Key&quot;, you authorize Veritas AI to:
+                  By clicking &ldquo;Save API Key&rdquo;, you authorize Veritas AI to:
                   <br />• Join your scheduled meetings as an autonomous agent
                   <br />• Access your calendar to identify meeting times
                   <br />• Process meeting audio for transcription and analysis

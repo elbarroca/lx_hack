@@ -1,4 +1,3 @@
-import { redirect } from "next/navigation"
 import { createClient } from "@/lib/supabase/server"
 import { hasEnvVars } from "@/lib/utils"
 import HeroSection from "@/components/landing/hero-section"
@@ -7,34 +6,31 @@ import FeatureDeepDive from "@/components/landing/feature-deep-dive";
 import SecuritySection from "@/components/landing/security-section";
 import FinalCTA from "@/components/landing/final-cta";
 
+// Force this page to be dynamic since we're checking auth status
+export const dynamic = 'force-dynamic'
+
 export default async function LandingPage() {
-  // If env vars are not set, show the landing page without auth check
-  if (!hasEnvVars) {
-    return (
-      <div className="flex-1 w-full flex flex-col bg-black text-white">
-        <HeroSection isLoggedIn={false} />
-        <HowItWorks />
-        <FeatureDeepDive />
-        <SecuritySection />
-        <FinalCTA isLoggedIn={false} />
-      </div>
-    )
-  }
+  let isLoggedIn = false;
 
-  const supabase = await createClient();
-
-  const { data, error } = await supabase.auth.getUser();
-  if (error || !data?.user) {
-    redirect("/auth/login");
+  // Only check auth if env vars are set
+  if (hasEnvVars) {
+    try {
+      const supabase = await createClient();
+      const { data, error } = await supabase.auth.getUser();
+      isLoggedIn = !error && !!data?.user;
+    } catch (error) {
+      console.error("Auth check failed:", error);
+      // Continue with isLoggedIn = false
+    }
   }
 
   return (
     <div className="flex-1 w-full flex flex-col bg-black text-white">
-      <HeroSection isLoggedIn={!!data?.user} />
+      <HeroSection isLoggedIn={isLoggedIn} />
       <HowItWorks />
       <FeatureDeepDive />
       <SecuritySection />
-      <FinalCTA isLoggedIn={!!data?.user} />
+      <FinalCTA isLoggedIn={isLoggedIn} />
     </div>
   )
 }
