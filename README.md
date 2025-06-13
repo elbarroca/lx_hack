@@ -1,287 +1,93 @@
-<a href="https://demo-nextjs-with-supabase.vercel.app/">
-  <img alt="Next.js and Supabase Starter Kit - the fastest way to build apps with Next.js and Supabase" src="https://demo-nextjs-with-supabase.vercel.app/opengraph-image.png">
-  <h1 align="center">Next.js and Supabase Starter Kit</h1>
-</a>
+![image](https://github.com/user-attachments/assets/05ce678c-2cc0-4b2b-9905-f9cfa6d114af)
+![image](https://github.com/user-attachments/assets/05ce678c-2cc0-4b2b-9905-f9cfa6d114af)
 
-<p align="center">
- The fastest way to build apps with Next.js and Supabase
-</p>
+---
 
-<p align="center">
-  <a href="#features"><strong>Features</strong></a> ·
-  <a href="#demo"><strong>Demo</strong></a> ·
-  <a href="#deploy-to-vercel"><strong>Deploy to Vercel</strong></a> ·
-  <a href="#clone-and-run-locally"><strong>Clone and run locally</strong></a> ·
-  <a href="#feedback-and-issues"><strong>Feedback and issues</strong></a>
-  <a href="#more-supabase-examples"><strong>More Examples</strong></a>
-</p>
-<br/>
+# Veritas AI - your personal meeting assistant 🤖
 
-# Vexa - AI Meeting Assistant
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![Tech: LLM Agent](https://img.shields.io/badge/Tech-LLM_Agent-blueviolet)](https://openai.com)
+[![Platform: Vexa AI](https://img.shields.io/badge/Transcription-Vexa_AI-orange)](https://vexa.ai/)
 
-Vexa is an intelligent meeting assistant that helps you extract insights from your meeting data using AI. It features a Model Context Protocol (MCP) server that can be accessed both through the web interface and externally by AI assistants like Claude.
+This project automates the process of transcribing Google Meet calls and generating intelligent analysis using an LLM. It acts as a powerful agent that joins meetings, captures the conversation, and produces a structured summary, action items, and more, creating a verifiable source of truth from every call.
 
-## Features
+## The Problem 🤔
 
-- 🎯 **Meeting Intelligence**: Chat with your meeting data to get insights, summaries, and action items
-- 🔍 **Smart Search**: Find specific meetings by content, title, or participants
-- 📊 **Statistics**: Get detailed analytics about your meeting patterns and productivity
-- 🤖 **MCP Integration**: External AI assistants can access your meeting data through the MCP protocol
-- 🔒 **Secure**: User-specific data access with Supabase authentication
+In any organization, countless hours are spent in meetings where critical decisions are made, tasks are assigned, and key insights are shared. However, this valuable information is often lost the moment the call ends. Manually taking notes is inefficient and prone to errors, leading to a lack of accountability and a fuzzy record of what was actually said.
 
-## Architecture
+## The Solution ✨
 
-### MCP Server (Vexa Meeting Assistant)
-The MCP server provides three main tools:
+This workflow provides a robust, automated solution. By deploying an AI agent into your Google Meet calls, you can create a permanent, intelligent, and queryable record of every conversation.
 
-1. **chatWithMeetings**: Natural language interface to query meeting data
-2. **getMeetingStats**: Get statistics about meetings (weekly, monthly, quarterly)
-3. **searchMeetings**: Search for specific meetings by content or metadata
+### Key Features:
+-   ▶️ **Manual or Automated Trigger:** Kick off the workflow for any Google Meet call.
+-   ✍️ **High-Quality Transcription:** Uses the Vexa AI API to get a full, speaker-separated transcript of the meeting.
+-   🧠 **AI-Powered Analysis:** Feeds the transcript to a Large Language Model (LLM) like OpenAI's GPT to generate a concise summary and structured data (e.g., action items in JSON format).
+-   💾 **Persistent Storage:** Saves all relevant data, including the transcript and AI analysis, to a Supabase database for record-keeping and tracking.
+-   🧹 **Automated Housekeeping:** The Vexa bot is automatically removed from the call after its job is done.
 
-### Web Interface
-- Next.js dashboard with real-time chat interface
-- Supabase authentication and data storage
-- Integration with the MCP server for AI-powered responses
+## 🚀 Workflow Breakdown
 
-## Setup
+The entire process is a sequential chain of events designed for reliability and clarity.
+
+
+
+Here is a step-by-step explanation of the workflow:
+
+1.  **Start:** Manually trigger the workflow and provide the Google Meet ID.
+2.  **Request Vexa Bot:** An API call is made to Vexa, requesting it to deploy a bot to join the specified Google Meet call.
+3.  **Wait for Transcription:** The workflow pauses for a set duration (e.g., 5 minutes, adjustable as needed) to allow the meeting to take place and be recorded.
+4.  **Get Vexa Transcript:** After the wait, it retrieves the full meeting transcript from the Vexa API.
+5.  **Analyze with LLM:** The transcript is sent to an LLM (OpenAI) with a prompt to generate a summary and extract key action items, returning a structured JSON object.
+6.  **Save to Supabase:** All relevant data—the transcript, the AI summary, and action items—are stored as a new row in your `meetings` table in Supabase for record-keeping.
+7.  **Stop Vexa Bot:** A final API call is made to remove the Vexa bot from the meeting for good housekeeping.
+
+## 🛠️ Tech Stack
+
+This workflow is built on a modern, API-first stack:
+
+| Component             | Technology                                                                                                  | Description                                         |
+| --------------------- | ----------------------------------------------------------------------------------------------------------- | --------------------------------------------------- |
+| **Orchestration**     | A workflow engine (e.g., [n8n](https://n8n.io/), [Pipedream](https://pipedream.com/), or a custom script)      | Manages the sequence of tasks and data flow.        |
+| **Transcription**     | [Vexa AI](https://vexa.ai/)                                                                                   | Provides the real-time transcription bot service.   |
+| **AI / Intelligence** | [OpenAI](https://openai.com/)                                                                                 | Powers the analysis and summarization of the text.  |
+| **Database**          | [Supabase](https://supabase.com/)                                                                             | Acts as the persistent data store for all results.  |
+
+## ⚙️ Getting Started
+
+To run this workflow yourself, you'll need to configure the necessary components and API credentials.
 
 ### Prerequisites
-- Node.js 18+ 
-- Supabase account and project
-- OpenAI API key
 
-### Environment Variables
-Create a `.env.local` file with:
-
-```env
-# Supabase
-NEXT_PUBLIC_SUPABASE_URL=your_supabase_url
-NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
-
-# OpenAI
-OPENAI_API_KEY=your_openai_api_key
-
-# MCP Server
-MCP_PORT=3001
-MCP_SERVER_URL=http://localhost:3001
-```
-
-### Installation
-
-1. **Install dependencies**:
-```bash
-npm install
-```
-
-2. **Start the MCP server**:
-```bash
-npm run mcp:dev
-```
-
-3. **Start the web application** (in a new terminal):
-```bash
-npm run dev
-```
-
-The MCP server will be available at `http://localhost:3001` and the web app at `http://localhost:3000`.
-
-## Using with External AI Assistants
-
-### Claude Desktop Integration
-
-Add to your Claude Desktop configuration (`claude_desktop_config.json`):
-
-```json
-{
-  "mcpServers": {
-    "vexa-meeting-assistant": {
-      "command": "node",
-      "args": ["path/to/your/project/dist/mcp-server.js"]
-    }
-  }
-}
-```
-
-First build the MCP server:
-```bash
-npm run mcp:build
-```
-
-### Available MCP Tools
-
-When connected via MCP, AI assistants can use these tools:
-
-#### `chatWithMeetings`
-- **Description**: Get information about past meetings and transcripts
-- **Parameters**: 
-  - `message` (string): The question to ask about meetings
-  - `userId` (string): The user ID to query data for
-
-#### `getMeetingStats` 
-- **Description**: Get statistics about meetings for a user
-- **Parameters**:
-  - `userId` (string): The user ID
-  - `timeframe` (optional): "week", "month", or "quarter"
-
-#### `searchMeetings`
-- **Description**: Search for specific meetings by title, date, or content  
-- **Parameters**:
-  - `userId` (string): The user ID
-  - `query` (string): Search query
-  - `limit` (optional): Maximum number of results
-
-### Example Usage with Claude
-
-Once configured, you can ask Claude:
-
-- "What were the action items from my recent meetings?" 
-- "Show me meeting statistics for this month"
-- "Search for meetings about project planning"
-- "What decisions were made in the Q4 strategy meeting?"
-
-## Database Schema
-
-The application expects these Supabase tables:
-
-- `meetings`: Meeting metadata and timing
-- `transcripts`: Meeting transcription data  
-- `action_items`: Action items extracted from meetings
-- `meeting_summaries`: AI-generated meeting summaries
-
-## Development
-
-### Scripts
-
-- `npm run dev`: Start Next.js development server
-- `npm run mcp:dev`: Start MCP server in development mode
-- `npm run mcp:build`: Build MCP server for production
-- `npm run mcp:start`: Start built MCP server
-- `npm run build`: Build Next.js application
-- `npm run start`: Start production Next.js server
-
-### MCP Server Development
-
-The MCP server is built with:
-- `@modelcontextprotocol/sdk`: Official MCP TypeScript SDK
-- Express.js for HTTP transport
-- Supabase for data access
-- OpenAI for AI processing
-
-### Testing the MCP Server
-
-You can test the MCP server directly:
-
-```bash
-# Health check
-curl http://localhost:3001/health
-
-# Test via web interface
-curl -X POST http://localhost:3001/api/mcp/chat \
-  -H "Content-Type: application/json" \
-  -d '{"message": "What meetings did I have this week?", "userId": "user-id"}'
-```
-
-## Deployment
-
-### MCP Server
-The MCP server can be deployed as:
-- A standalone Node.js service
-- Docker container
-- Serverless function (with modifications)
-
-### Web Application  
-Deploy the Next.js app to:
-- Vercel (recommended)
-- Netlify
-- Any Node.js hosting platform
-
-## Security Considerations
-
-- User data is isolated by user ID
-- MCP server validates all inputs
-- CORS is configured for external access
-- Environment variables protect sensitive keys
-- Supabase RLS (Row Level Security) should be enabled
-
-## Contributing
-
-1. Fork the repository
-2. Create a feature branch
-3. Make your changes
-4. Test both web interface and MCP functionality
-5. Submit a pull request
-
-## License
-
-MIT License - see LICENSE file for details.
-
-## Demo
-
-You can view a fully working demo at [demo-nextjs-with-supabase.vercel.app](https://demo-nextjs-with-supabase.vercel.app/).
-
-## Deploy to Vercel
-
-Vercel deployment will guide you through creating a Supabase account and project.
-
-After installation of the Supabase integration, all relevant environment variables will be assigned to the project so the deployment is fully functioning.
-
-[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2Fvercel%2Fnext.js%2Ftree%2Fcanary%2Fexamples%2Fwith-supabase&project-name=nextjs-with-supabase&repository-name=nextjs-with-supabase&demo-title=nextjs-with-supabase&demo-description=This+starter+configures+Supabase+Auth+to+use+cookies%2C+making+the+user%27s+session+available+throughout+the+entire+Next.js+app+-+Client+Components%2C+Server+Components%2C+Route+Handlers%2C+Server+Actions+and+Middleware.&demo-url=https%3A%2F%2Fdemo-nextjs-with-supabase.vercel.app%2F&external-id=https%3A%2F%2Fgithub.com%2Fvercel%2Fnext.js%2Ftree%2Fcanary%2Fexamples%2Fwith-supabase&demo-image=https%3A%2F%2Fdemo-nextjs-with-supabase.vercel.app%2Fopengraph-image.png)
-
-The above will also clone the Starter kit to your GitHub, you can clone that locally and develop locally.
-
-If you wish to just develop locally and not deploy to Vercel, [follow the steps below](#clone-and-run-locally).
-
-## Clone and run locally
-
-1. You'll first need a Supabase project which can be made [via the Supabase dashboard](https://database.new)
-
-2. Create a Next.js app using the Supabase Starter template npx command
-
-   ```bash
-   npx create-next-app --example with-supabase with-supabase-app
-   ```
-
-   ```bash
-   yarn create next-app --example with-supabase with-supabase-app
-   ```
-
-   ```bash
-   pnpm create next-app --example with-supabase with-supabase-app
-   ```
-
-3. Use `cd` to change into the app's directory
-
-   ```bash
-   cd with-supabase-app
-   ```
-
-4. Rename `.env.example` to `.env.local` and update the following:
-
-   ```
-   NEXT_PUBLIC_SUPABASE_URL=[INSERT SUPABASE PROJECT URL]
-   NEXT_PUBLIC_SUPABASE_ANON_KEY=[INSERT SUPABASE PROJECT API ANON KEY]
-   ```
-
-   Both `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_ANON_KEY` can be found in [your Supabase project's API settings](https://supabase.com/dashboard/project/_?showConnect=true)
-
-5. You can now run the Next.js local development server:
-
-   ```bash
-   npm run dev
-   ```
-
-   The starter kit should now be running on [localhost:3000](http://localhost:3000/).
-
-6. This template comes with the default shadcn/ui style initialized. If you instead want other ui.shadcn styles, delete `components.json` and [re-install shadcn/ui](https://ui.shadcn.com/docs/installation/next)
-
-> Check out [the docs for Local Development](https://supabase.com/docs/guides/getting-started/local-development) to also run Supabase locally.
-
-## Feedback and issues
-
-Please file feedback and issues over on the [Supabase GitHub org](https://github.com/supabase/supabase/issues/new/choose).
-
-## More Supabase examples
-
-- [Next.js Subscription Payments Starter](https://github.com/vercel/nextjs-subscription-payments)
-- [Cookie-based Auth and the Next.js 13 App Router (free course)](https://youtube.com/playlist?list=PL5S4mPUpp4OtMhpnp93EFSo42iQ40XjbF)
-- [Supabase Auth and the Next.js App Router](https://github.com/supabase/supabase/tree/master/examples/auth/nextjs)
+-   A Vexa AI account and API Key.
+-   An OpenAI account and API Key.
+-   A Supabase project with a `meetings` table set up.
+-   An automation platform or a development environment to run the workflow script.
+
+### Configuration
+
+1.  **Clone the Repository (if applicable):**
+    ```bash
+    git clone https://github.com/your-username/your-repo.git
+    cd your-repo
+    ```
+
+2.  **Set Up Environment Variables:**
+    Create a `.env` file and add your secret keys.
+    ```env
+    # Vexa AI Credentials
+    VEXA_API_KEY="YOUR_VEXA_API_KEY"
+
+    # OpenAI Credentials
+    OPENAI_API_KEY="YOUR_OPENAI_API_KEY"
+
+    # Supabase Credentials
+    SUPABASE_URL="YOUR_SUPABASE_PROJECT_URL"
+    SUPABASE_ANON_KEY="YOUR_SUPABASE_ANON_KEY"
+    ```
+
+3.  **Configure Workflow Nodes:**
+    In each step of your workflow, ensure you are using these environment variables to authenticate with the respective services (Vexa, OpenAI, Supabase).
+
+4.  **Run the Workflow:**
+    Trigger the workflow by providing a valid Google Meet ID as input. Watch the magic happen
