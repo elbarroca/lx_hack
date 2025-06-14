@@ -3,6 +3,7 @@ import { Geist } from "next/font/google";
 import { ThemeProvider } from "next-themes";
 import "./globals.css";
 import Footer from "@/components/ui/footer";
+import { Toaster } from "@/components/ui/toaster";
 // import Navbar from "@/components/ui/navbar";
 // import { createClient } from "@/lib/supabase/server";
 // import { redirect } from "next/navigation";
@@ -47,6 +48,7 @@ export default async function RootLayout({
         >
           {children}
         </ThemeProvider>
+        <Toaster />
         <Footer />
       </body>
     </html>

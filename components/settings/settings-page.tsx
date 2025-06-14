@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Button } from "@/components/ui/button"
-import { useToast } from "@/hooks/use-toast"
+import { useToast } from "@/app/hooks/use-toast"
 import { Settings, Save, Loader2 } from "lucide-react"
 import IntegrationsTab from "./integrations-tab"
 import AutomationRulesTab from "./automation-rules-tab"
