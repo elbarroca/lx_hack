@@ -19,8 +19,7 @@ NEXT_PUBLIC_APP_URL=http://localhost:3000
 4. Go to "Credentials" → "Create Credentials" → "OAuth 2.0 Client IDs"
 5. Set application type to "Web application"
 6. Add authorized redirect URIs:
-   - `http://localhost:3000/auth/google/callback` (for development)
-   - `https://yourdomain.com/auth/google/callback` (for production)
+   - `https://ngpywxuebfxmrjqptjfb.supabase.co/auth/v1/callback` (Supabase OAuth callback)
 7. Copy the Client ID and Client Secret to your environment variables
 
 ## Required Scopes

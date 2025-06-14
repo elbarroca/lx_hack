@@ -10,7 +10,7 @@ export function getGoogleAuthUrl() {
   const oauth2Client = new google.auth.OAuth2(
     process.env.GOOGLE_CLIENT_ID,
     process.env.GOOGLE_CLIENT_SECRET,
-    `${process.env.NEXT_PUBLIC_APP_URL}/auth/google/callback`
+    "https://ngpywxuebfxmrjqptjfb.supabase.co/auth/v1/callback"
   )
 
   const authUrl = oauth2Client.generateAuthUrl({
@@ -26,7 +26,7 @@ export async function getGoogleTokens(code: string) {
   const oauth2Client = new google.auth.OAuth2(
     process.env.GOOGLE_CLIENT_ID,
     process.env.GOOGLE_CLIENT_SECRET,
-    `${process.env.NEXT_PUBLIC_APP_URL}/auth/google/callback`
+    "https://ngpywxuebfxmrjqptjfb.supabase.co/auth/v1/callback"
   )
 
   const { tokens } = await oauth2Client.getToken(code)

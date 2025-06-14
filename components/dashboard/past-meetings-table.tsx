@@ -86,8 +86,8 @@ export default function PastMeetingsTable({ meetings }: PastMeetingsTableProps) 
   }
 
   const handleReviewMeeting = (meetingId: string) => {
-    // TODO: Navigate to meeting review page
-    console.log("Review meeting:", meetingId)
+    // Open Gmail URL containing meeting transcript/script
+    window.open('https://mail.google.com/mail/u/0/#inbox/FMfcgzQbffhxrWWqXNHNJKHCfLqMCkTr', '_blank')
   }
 
   return (

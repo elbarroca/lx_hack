@@ -73,7 +73,7 @@ export default function SignUpPage() {
         provider: "google",
         options: {
           scopes: "https://www.googleapis.com/auth/calendar.readonly",
-          redirectTo: `${window.location.origin}/auth/callback`,
+          redirectTo: `${window.location.origin}/auth/setup`,
         },
       })
 

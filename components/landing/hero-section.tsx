@@ -51,25 +51,14 @@ export default function HeroSection({ isLoggedIn }: HeroSectionProps) {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6, delay: 0.4 }}
             >
-              {isLoggedIn ? (
-                <Link href="/auth/login">
-                  <Button
-                    size="lg"
-                    className="bg-green-500 hover:bg-green-600 text-black font-medium px-8 py-6 text-lg"
-                  >
-                    Get Started
-                  </Button>
-                </Link>
-              ) : (
-                <Link href="/auth/login">
-                  <Button
-                    size="lg"
-                    className="bg-green-500 hover:bg-green-600 text-black font-medium px-8 py-6 text-lg"
-                  >
-                    Start Your Free Trial
-                  </Button>
-                </Link>
-              )}
+              <Link href="/auth/login">
+                <Button
+                  size="lg"
+                  className="bg-green-500 hover:bg-green-600 text-black font-medium px-8 py-6 text-lg"
+                >
+                  {isLoggedIn ? "Get Started" : "Start Your Free Trial"}
+                </Button>
+              </Link>
             </motion.div>
           </div>
 
