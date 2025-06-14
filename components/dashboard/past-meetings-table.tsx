@@ -85,7 +85,7 @@ export default function PastMeetingsTable({ meetings }: PastMeetingsTableProps) 
     }
   }
 
-  const handleReviewMeeting = (meetingId: string) => {
+  const handleReviewMeeting = () => {
     // Open Gmail URL containing meeting transcript/script
     window.open('https://mail.google.com/mail/u/0/#inbox/FMfcgzQbffhxrWWqXNHNJKHCfLqMCkTr', '_blank')
   }
@@ -158,7 +158,7 @@ export default function PastMeetingsTable({ meetings }: PastMeetingsTableProps) 
                   <Button
                     size="sm"
                     variant="outline"
-                    onClick={() => handleReviewMeeting(meeting.id)}
+                    onClick={() => handleReviewMeeting()}
                     className="border-green-500/30 text-green-500 hover:bg-green-500/10"
                   >
                     <Eye className="h-3 w-3 mr-1" />

@@ -1,15 +1,7 @@
 import { createClient } from "@/lib/supabase/server"
 import { NextResponse } from "next/server"
 
-interface CalendarEvent {
-  start?: { dateTime: string }
-  end?: { dateTime: string }
-  summary?: string
-}
 
-interface CalendarData {
-  items?: CalendarEvent[]
-}
 
 export async function GET(request: Request) {
   console.log("📊 [DASHBOARD] Starting dashboard API call")
@@ -74,30 +66,32 @@ export async function GET(request: Request) {
       
       // Log first few events for debugging
       if (allEvents.length > 0) {
-        console.log("📊 [DASHBOARD] Sample events:", allEvents.slice(0, 3).map((event: any) => ({
-          id: event.id,
-          summary: event.summary,
-          startDateTime: event.start?.dateTime,
-          endDateTime: event.end?.dateTime,
-          hasDateTime: !!event.start?.dateTime
+        console.log("📊 [DASHBOARD] Sample events:", allEvents.slice(0, 3).map((event: unknown) => ({
+          id: (event as { id?: string }).id,
+          summary: (event as { summary?: string }).summary,
+          startDateTime: (event as { start?: { dateTime?: string } }).start?.dateTime,
+          endDateTime: (event as { end?: { dateTime?: string } }).end?.dateTime,
+          hasDateTime: !!(event as { start?: { dateTime?: string } }).start?.dateTime
         })))
       }
 
-      upcomingMeetings = allEvents.filter((event: any) => {
-        const hasDateTime = event.start?.dateTime
-        const eventTime = hasDateTime ? new Date(event.start.dateTime) : null
+      upcomingMeetings = allEvents.filter((event: unknown) => {
+        const eventObj = event as { start?: { dateTime?: string }; summary?: string }
+        const hasDateTime = eventObj.start?.dateTime
+        const eventTime = hasDateTime ? new Date(hasDateTime) : null
         const isUpcoming = eventTime && eventTime > now
         
-        if (hasDateTime) {
-          console.log(`📊 [DASHBOARD] Event "${event.summary}": ${event.start.dateTime} -> ${isUpcoming ? 'UPCOMING' : 'PAST'}`)
+        if (hasDateTime && eventObj.start) {
+          console.log(`📊 [DASHBOARD] Event "${eventObj.summary}": ${eventObj.start.dateTime} -> ${isUpcoming ? 'UPCOMING' : 'PAST'}`)
         }
         
         return isUpcoming
       }).slice(0, 10)
 
-      pastMeetings = allEvents.filter((event: any) => {
-        const hasDateTime = event.start?.dateTime
-        const eventTime = hasDateTime ? new Date(event.start.dateTime) : null
+      pastMeetings = allEvents.filter((event: unknown) => {
+        const eventObj = event as { start?: { dateTime?: string } }
+        const hasDateTime = eventObj.start?.dateTime
+        const eventTime = hasDateTime ? new Date(hasDateTime) : null
         const isPast = eventTime && eventTime <= now
         return isPast
       }).slice(0, 10)
@@ -241,10 +235,11 @@ The team will reconvene next Tuesday to discuss further progress and any outstan
     }
 
     // Calculate stats
-    const totalMeetingHours = pastMeetings.reduce((total: number, meeting: any) => {
-      if (meeting.start?.dateTime && meeting.end?.dateTime) {
-        const start = new Date(meeting.start.dateTime)
-        const end = new Date(meeting.end.dateTime)
+    const totalMeetingHours = pastMeetings.reduce((total: number, meeting: unknown) => {
+      const meetingObj = meeting as { start?: { dateTime?: string }; end?: { dateTime?: string } }
+      if (meetingObj.start?.dateTime && meetingObj.end?.dateTime) {
+        const start = new Date(meetingObj.start.dateTime)
+        const end = new Date(meetingObj.end.dateTime)
         const duration = (end.getTime() - start.getTime()) / (1000 * 60 * 60)
         return total + duration
       }
