@@ -1,7 +1,10 @@
 import { createClient } from "@/lib/supabase/server"
 import { NextResponse } from "next/server"
 
-export async function POST(request: Request, { params }: { params: { meetingId: string } }) {
+export async function POST(
+  request: Request,
+  context: { params: Promise<{ meetingId: string }> }
+) {
   const supabase = await createClient()
 
   // Check if user is authenticated
@@ -11,7 +14,7 @@ export async function POST(request: Request, { params }: { params: { meetingId: 
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
   }
 
-  const { meetingId } = params
+  const { meetingId } = await context.params
   const { armed } = await request.json()
 
   try {

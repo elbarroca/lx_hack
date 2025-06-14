@@ -1,6 +1,16 @@
 import { createClient } from "@/lib/supabase/server"
 import { NextResponse } from "next/server"
 
+interface CalendarEvent {
+  start?: { dateTime: string }
+  end?: { dateTime: string }
+  summary?: string
+}
+
+interface CalendarData {
+  items?: CalendarEvent[]
+}
+
 export async function GET(request: Request) {
   const supabase = await createClient()
 
@@ -11,8 +21,6 @@ export async function GET(request: Request) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
   }
 
-  const userId = userData.user.id
-
   try {
     // Get Google Calendar events from our internal API
     const calendarResponse = await fetch(`${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/api/calendar/events`, {
@@ -21,19 +29,19 @@ export async function GET(request: Request) {
       },
     })
 
-    let upcomingMeetings = []
-    let pastMeetings = []
+    let upcomingMeetings: CalendarEvent[] = []
+    let pastMeetings: CalendarEvent[] = []
 
     if (calendarResponse.ok) {
-      const calendarData = await calendarResponse.json()
+      const calendarData: CalendarData = await calendarResponse.json()
       const now = new Date()
 
       // Separate upcoming and past meetings
       upcomingMeetings =
-        calendarData.items?.filter((event: any) => event.start?.dateTime && new Date(event.start.dateTime) > now).slice(0, 10) || []
+        calendarData.items?.filter((event: CalendarEvent) => event.start?.dateTime && new Date(event.start.dateTime) > now).slice(0, 10) || []
 
       pastMeetings =
-        calendarData.items?.filter((event: any) => event.start?.dateTime && new Date(event.start.dateTime) <= now).slice(0, 10) || []
+        calendarData.items?.filter((event: CalendarEvent) => event.start?.dateTime && new Date(event.start.dateTime) <= now).slice(0, 10) || []
     }
 
     // Calculate stats
@@ -41,9 +49,9 @@ export async function GET(request: Request) {
       meetingsThisWeek: upcomingMeetings.length,
       actionItemsAssigned: 24,
       avgSentiment: "Positive",
-      totalMeetingHours: pastMeetings.reduce((total: number, meeting: any) => {
-        const start = new Date(meeting.start.dateTime)
-        const end = new Date(meeting.end.dateTime)
+      totalMeetingHours: pastMeetings.reduce((total: number, meeting: CalendarEvent) => {
+        const start = new Date(meeting.start!.dateTime!)
+        const end = new Date(meeting.end!.dateTime!)
         const duration = (end.getTime() - start.getTime()) / (1000 * 60 * 60)
         return total + duration
       }, 0),

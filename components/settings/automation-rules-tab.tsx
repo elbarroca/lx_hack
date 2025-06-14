@@ -10,46 +10,48 @@ import { Button } from "@/components/ui/button"
 import { useState } from "react"
 import { Bot, Clock, Filter, Bell, Brain, X, Plus } from "lucide-react"
 
-interface AutomationRulesTabProps {
-  automationRules: {
-    joinWhenOrganizer: boolean
-    joinWhenAttendee: boolean
-    ignoreMeetingsTitled: string[]
-    onlyJoinMeetingsWith: string[]
-    minimumMeetingDuration: number
-    maximumMeetingDuration: number
-    workingHours: {
-      enabled: boolean
-      start: string
-      end: string
-      timezone: string
-    }
-    notifications: {
-      slackSummary: boolean
-      emailSummary: boolean
-      realTimeAlerts: boolean
-    }
-    aiSettings: {
-      summaryLength: "brief" | "detailed" | "comprehensive"
-      includeTranscript: boolean
-      sentimentAnalysis: boolean
-      actionItemExtraction: boolean
-    }
+interface AutomationRules {
+  joinWhenOrganizer: boolean
+  joinWhenAttendee: boolean
+  ignoreMeetingsTitled: string[]
+  onlyJoinMeetingsWith: string[]
+  minimumMeetingDuration: number
+  maximumMeetingDuration: number
+  workingHours: {
+    enabled: boolean
+    start: string
+    end: string
+    timezone: string
   }
-  onUpdate: (rules: any) => void
+  notifications: {
+    slackSummary: boolean
+    emailSummary: boolean
+    realTimeAlerts: boolean
+  }
+  aiSettings: {
+    summaryLength: "brief" | "detailed" | "comprehensive"
+    includeTranscript: boolean
+    sentimentAnalysis: boolean
+    actionItemExtraction: boolean
+  }
+}
+
+interface AutomationRulesTabProps {
+  automationRules: AutomationRules
+  onUpdate: (rules: AutomationRules) => void
 }
 
 export default function AutomationRulesTab({ automationRules, onUpdate }: AutomationRulesTabProps) {
   const [newIgnoreTitle, setNewIgnoreTitle] = useState("")
   const [newRequiredAttendee, setNewRequiredAttendee] = useState("")
 
-  const updateRule = (path: string, value: any) => {
+  const updateRule = (path: string, value: string | number | boolean | string[]) => {
     const keys = path.split(".")
     const newRules = { ...automationRules }
-    let current: any = newRules
+    let current: Record<string, unknown> = newRules
 
     for (let i = 0; i < keys.length - 1; i++) {
-      current = current[keys[i]]
+      current = current[keys[i]] as Record<string, unknown>
     }
     current[keys[keys.length - 1]] = value
 
@@ -94,7 +96,7 @@ export default function AutomationRulesTab({ automationRules, onUpdate }: Automa
         <CardContent className="space-y-6">
           <div className="flex items-center justify-between">
             <div className="space-y-0.5">
-              <Label className="text-base">Join when I'm the organizer</Label>
+              <Label className="text-base">Join when I&apos;m the organizer</Label>
               <p className="text-sm text-gray-400">Automatically join meetings you organize</p>
             </div>
             <Switch
@@ -105,8 +107,8 @@ export default function AutomationRulesTab({ automationRules, onUpdate }: Automa
 
           <div className="flex items-center justify-between">
             <div className="space-y-0.5">
-              <Label className="text-base">Join when I'm an attendee</Label>
-              <p className="text-sm text-gray-400">Automatically join meetings I'm invited to</p>
+              <Label className="text-base">Join when I&apos;m an attendee</Label>
+              <p className="text-sm text-gray-400">Automatically join meetings I&apos;m invited to</p>
             </div>
             <Switch
               checked={automationRules.joinWhenAttendee}
@@ -131,7 +133,7 @@ export default function AutomationRulesTab({ automationRules, onUpdate }: Automa
             <p className="text-sm text-gray-400">Skip meetings with these titles (case-insensitive)</p>
             <div className="flex gap-2">
               <Input
-                placeholder="e.g., 'Daily Standup', 'Coffee Chat'"
+                placeholder="e.g., &apos;Daily Standup&apos;, &apos;Coffee Chat&apos;"
                 value={newIgnoreTitle}
                 onChange={(e) => setNewIgnoreTitle(e.target.value)}
                 onKeyPress={(e) => e.key === "Enter" && addIgnoreTitle()}
@@ -158,7 +160,7 @@ export default function AutomationRulesTab({ automationRules, onUpdate }: Automa
             <p className="text-sm text-gray-400">Only join meetings that include these attendees</p>
             <div className="flex gap-2">
               <Input
-                placeholder="e.g., 'john@company.com', 'Sarah'"
+                placeholder="e.g., &apos;john@company.com&apos;, &apos;Sarah&apos;"
                 value={newRequiredAttendee}
                 onChange={(e) => setNewRequiredAttendee(e.target.value)}
                 onKeyPress={(e) => e.key === "Enter" && addRequiredAttendee()}

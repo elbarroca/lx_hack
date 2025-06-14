@@ -191,7 +191,7 @@ export default function MeetingDetailPage() {
           {/* Right Column - Verifiable Truth */}
           <div className="space-y-6">
             <ActionItemsList actionItems={meetingData.actionItems} onStatusUpdate={handleActionItemUpdate} />
-            <InteractiveTranscript transcript={meetingData.analysis.transcript} analysis={meetingData.analysis} />
+            <InteractiveTranscript transcript={meetingData.analysis.transcript} />
           </div>
         </div>
       </div>

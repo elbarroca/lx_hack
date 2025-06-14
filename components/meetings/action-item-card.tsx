@@ -75,7 +75,7 @@ export default function ActionItemCard({ id, task, owner, quote, initialStatus, 
             <div className="ml-8 p-3 bg-gray-900 border border-gray-700 rounded-lg">
               <div className="flex items-start gap-2">
                 <Quote className="w-4 h-4 text-green-500 mt-1 flex-shrink-0" />
-                <p className="text-sm text-gray-300 italic leading-relaxed">"{quote}"</p>
+                <p className="text-sm text-gray-300 italic leading-relaxed">&quot;{quote}&quot;</p>
               </div>
             </div>
           )}

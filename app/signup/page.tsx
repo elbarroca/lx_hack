@@ -149,7 +149,7 @@ export default function SignUpPage() {
             </Button>
 
             <div className="text-center text-sm text-gray-400">
-              <p className="mb-3">What you'll get:</p>
+              <p className="mb-3">What you&apos;ll get:</p>
               <ul className="space-y-2 text-xs text-gray-500">
                 <li className="flex items-center justify-center gap-2">
                   <div className="w-1 h-1 bg-green-500 rounded-full"></div>

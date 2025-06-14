@@ -5,32 +5,35 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import IntegrationCard from "./integration-card"
 import { Key, Calendar, MessageSquare, Zap } from "lucide-react"
 
-interface IntegrationsTabProps {
-  integrations: {
-    vexa: {
-      apiKey: string
-      isConnected: boolean
-    }
-    openai: {
-      apiKey: string
-      isConnected: boolean
-    }
-    google: {
-      isConnected: boolean
-      email?: string
-    }
-    slack: {
-      isConnected: boolean
-      workspaceName?: string
-    }
+interface Integrations {
+  vexa: {
+    apiKey: string
+    isConnected: boolean
   }
-  onUpdate: (integrations: any) => void
+  openai: {
+    apiKey: string
+    isConnected: boolean
+  }
+  google: {
+    isConnected: boolean
+    email?: string
+  }
+  slack: {
+    isConnected: boolean
+    workspaceName?: string
+  }
+}
+
+interface IntegrationsTabProps {
+  integrations: Integrations
+  onUpdate: (integrations: Integrations) => void
 }
 
 export default function IntegrationsTab({ integrations, onUpdate }: IntegrationsTabProps) {
   const [isConnecting, setIsConnecting] = useState<string | null>(null)
 
-  const handleVexaConnect = async (apiKey: string) => {
+  const handleVexaConnect = async (apiKey?: string) => {
+    if (!apiKey) return
     setIsConnecting("vexa")
     try {
       // Validate Vexa API key
@@ -55,7 +58,8 @@ export default function IntegrationsTab({ integrations, onUpdate }: Integrations
     }
   }
 
-  const handleOpenAIConnect = async (apiKey: string) => {
+  const handleOpenAIConnect = async (apiKey?: string) => {
+    if (!apiKey) return
     setIsConnecting("openai")
     try {
       // Validate OpenAI API key
@@ -153,7 +157,6 @@ export default function IntegrationsTab({ integrations, onUpdate }: Integrations
             isConnecting={isConnecting === "vexa"}
             inputType="apiKey"
             placeholder="Enter your Vexa API key"
-            currentValue={integrations.vexa.apiKey}
           />
 
           <IntegrationCard
@@ -171,7 +174,6 @@ export default function IntegrationsTab({ integrations, onUpdate }: Integrations
             isConnecting={isConnecting === "openai"}
             inputType="apiKey"
             placeholder="Enter your OpenAI API key"
-            currentValue={integrations.openai.apiKey}
           />
         </CardContent>
       </Card>

@@ -38,7 +38,7 @@ export async function GET() {
           isConnected: !!userSettings?.openai_api_key,
         },
         google: {
-          isConnected: !!userData.user.app_metadata?.provider === "google",
+          isConnected: userData.user.app_metadata?.provider === "google",
           email: userData.user.email,
         },
         slack: {

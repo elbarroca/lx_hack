@@ -14,17 +14,9 @@ interface TranscriptEntry {
 
 interface InteractiveTranscriptProps {
   transcript: TranscriptEntry[]
-  analysis: {
-    summary: string
-    keyTopics: string[]
-    sentiment: {
-      overall: string
-      score: number
-    }
-  }
 }
 
-export default function InteractiveTranscript({ transcript, analysis }: InteractiveTranscriptProps) {
+export default function InteractiveTranscript({ transcript }: InteractiveTranscriptProps) {
   const [searchTerm, setSearchTerm] = useState("")
   const [highlightedSpeaker, setHighlightedSpeaker] = useState<string | null>(null)
 

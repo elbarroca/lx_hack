@@ -18,7 +18,6 @@ interface IntegrationCardProps {
   isConnecting: boolean
   inputType: "apiKey" | "oauth"
   placeholder?: string
-  currentValue?: string
 }
 
 export default function IntegrationCard({
@@ -32,7 +31,6 @@ export default function IntegrationCard({
   isConnecting,
   inputType,
   placeholder,
-  currentValue,
 }: IntegrationCardProps) {
   const [inputValue, setInputValue] = useState("")
   const [showInput, setShowInput] = useState(false)

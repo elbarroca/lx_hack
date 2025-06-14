@@ -33,7 +33,7 @@ export async function GET(request: Request) {
     const supabase = await createClient()
 
     // Create or update user in our database
-    const { data: existingUser, error: userError } = await supabase
+    const { data: existingUser } = await supabase
       .from("users")
       .select("*")
       .eq("email", userInfo.email)

@@ -162,7 +162,7 @@ export default function LoginPage() {
             </Button>
 
             <div className="text-center text-sm text-gray-400">
-              <p className="mb-3">We'll access your calendar to:</p>
+              <p className="mb-3">We&apos;ll access your calendar to:</p>
               <ul className="space-y-2 text-xs text-gray-500">
                 <li className="flex items-center justify-center gap-2">
                   <div className="w-1 h-1 bg-green-500 rounded-full"></div>
@@ -182,7 +182,7 @@ export default function LoginPage() {
             <div className="border-t border-gray-800 pt-4">
               <div className="flex items-center justify-center gap-2 text-xs text-gray-500">
                 <Key className="w-3 h-3" />
-                <span>After signing in, you'll configure your AI agent settings</span>
+                <span>After signing in, you&apos;ll configure your AI agent settings</span>
               </div>
             </div>
           </CardContent>
