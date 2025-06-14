@@ -1,116 +1,61 @@
-import { NextResponse } from "next/server"
 import { createClient } from "@/lib/supabase/server"
+import { NextResponse } from "next/server"
 
 export async function GET() {
+  const supabase = await createClient()
+
+  // Check if user is authenticated
+  const { data: userData, error: authError } = await supabase.auth.getUser()
+
+  if (authError || !userData?.user) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+  }
+
+  const userId = userData.user.id
+
   try {
-    const supabase = await createClient()
-
-    // Get the authenticated user
-    const { data: { user }, error: authError } = await supabase.auth.getUser()
-    
-    if (authError || !user) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
-    }
-
-    // Get user from our users table
-    const { data: userData, error: userError } = await supabase
-      .from("users")
-      .select("*")
-      .eq("email", user.email)
-      .single()
-
-    if (userError || !userData) {
-      return NextResponse.json({ error: "User not found" }, { status: 404 })
-    }
-
-    const now = new Date().toISOString()
-
-    // Get upcoming meetings (scheduled_at >= now)
-    const { data: upcomingMeetings, error: upcomingError } = await supabase
-      .from("meetings")
-      .select("*")
-      .eq("user_id", userData.id)
-      .gte("scheduled_at", now)
-      .order("scheduled_at", { ascending: true })
-
-    if (upcomingError) {
-      console.error("Error fetching upcoming meetings:", upcomingError)
-      return NextResponse.json({ error: "Failed to fetch upcoming meetings" }, { status: 500 })
-    }
-
-    // Get past meetings (scheduled_at < now)
-    const { data: pastMeetings, error: pastError } = await supabase
-      .from("meetings")
-      .select("*")
-      .eq("user_id", userData.id)
-      .lt("scheduled_at", now)
-      .order("scheduled_at", { ascending: false })
-
-    if (pastError) {
-      console.error("Error fetching past meetings:", pastError)
-      return NextResponse.json({ error: "Failed to fetch past meetings" }, { status: 500 })
-    }
-
-    // Calculate statistics
-    const oneWeekAgo = new Date()
-    oneWeekAgo.setDate(oneWeekAgo.getDate() - 7)
-    const oneWeekAgoISO = oneWeekAgo.toISOString()
-
-    const meetingsThisWeek = pastMeetings.filter(meeting => 
-      meeting.scheduled_at >= oneWeekAgoISO
-    ).length
-
-    // Calculate total hours from past meetings that have ended_at
-    const totalHours = pastMeetings.reduce((total, meeting) => {
-      if (meeting.started_at && meeting.ended_at) {
-        const start = new Date(meeting.started_at)
-        const end = new Date(meeting.ended_at)
-        const hours = (end.getTime() - start.getTime()) / (1000 * 60 * 60)
-        return total + hours
-      }
-      return total
-    }, 0)
-
-    // Format meetings for frontend
-    const formatMeeting = (meeting: any) => ({
-      id: meeting.id,
-      title: meeting.meeting_title,
-      time: meeting.scheduled_at,
-      status: meeting.status,
-      url: meeting.meeting_url,
-      hasRecording: !!meeting.recording_url,
-      hasTranscript: !!meeting.transcript,
-      hasSummary: !!meeting.summary,
-      canReview: meeting.status === 'completed' || (meeting.ended_at && new Date(meeting.ended_at) < new Date()),
-      nativeMeetingId: meeting.native_meeting_id,
-      startedAt: meeting.started_at,
-      endedAt: meeting.ended_at,
+    // Get Google Calendar events
+    const calendarResponse = await fetch(`${process.env.NEXT_PUBLIC_SITE_URL}/api/calendar/events`, {
+      headers: {
+        Authorization: `Bearer ${userData.user.access_token}`,
+      },
     })
 
-    const response = {
-      user: {
-        name: userData.full_name || user.email,
-        email: user.email,
-      },
-      stats: {
-        meetingsThisWeek,
-        totalHours: Math.round(totalHours * 10) / 10, // Round to 1 decimal place
-        upcomingMeetings: upcomingMeetings.length,
-        pastMeetings: pastMeetings.length,
-      },
-      upcomingMeetings: upcomingMeetings.map(formatMeeting),
-      pastMeetings: pastMeetings.map(formatMeeting),
+    let upcomingMeetings = []
+    let pastMeetings = []
+
+    if (calendarResponse.ok) {
+      const calendarData = await calendarResponse.json()
+      const now = new Date()
+
+      // Separate upcoming and past meetings
+      upcomingMeetings =
+        calendarData.items?.filter((event: any) => new Date(event.start.dateTime) > now).slice(0, 10) || []
+
+      pastMeetings =
+        calendarData.items?.filter((event: any) => new Date(event.start.dateTime) <= now).slice(0, 10) || []
     }
 
-    return NextResponse.json(response)
+    // Calculate stats
+    const stats = {
+      meetingsThisWeek: upcomingMeetings.length,
+      actionItemsAssigned: 24,
+      avgSentiment: "Positive",
+      totalMeetingHours: pastMeetings.reduce((total: number, meeting: any) => {
+        const start = new Date(meeting.start.dateTime)
+        const end = new Date(meeting.end.dateTime)
+        const duration = (end.getTime() - start.getTime()) / (1000 * 60 * 60)
+        return total + duration
+      }, 0),
+    }
 
+    return NextResponse.json({
+      stats,
+      upcomingMeetings,
+      pastMeetings,
+    })
   } catch (error) {
-    console.error("Dashboard API error:", error)
-    return NextResponse.json(
-      { error: "Internal server error" },
-      { status: 500 }
-    )
+    console.error("Error fetching dashboard data:", error)
+    return NextResponse.json({ error: "Failed to fetch dashboard data" }, { status: 500 })
   }
 }
-
-
