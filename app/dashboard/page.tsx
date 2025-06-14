@@ -10,6 +10,7 @@ import PastMeetingsTable from "@/components/dashboard/past-meetings-table"
 import SetupModal from "@/components/dashboard/setup-modal"
 import { Loader2 } from "lucide-react"
 import ChatInterface from "@/components/dashboard/chat-interface"
+import { mockUser, mockStats, mockUpcomingMeetings, mockPastMeetings } from "@/lib/mock-data"
 
 interface CalendarEvent {
   id: string
@@ -56,7 +57,7 @@ interface DashboardData {
 }
 
 export default function DashboardPage() {
-  const [user, setUser] = useState<{ email: string } | null>(null)
+  const [user, setUser] = useState<{ email: string; name?: string } | null>(null)
   const [setupCompleted, setSetupCompleted] = useState<boolean | null>(null)
   const [dashboardData, setDashboardData] = useState<DashboardData | null>(null)
   const [isLoading, setIsLoading] = useState(true)
@@ -66,15 +67,13 @@ export default function DashboardPage() {
 
   const fetchDashboardData = useCallback(async () => {
     try {
-      const response = await fetch("/api/dashboard")
-      if (response.status === 401) {
-        router.push("/auth/login")
-        return
+      // Use mock data instead of API call
+      const data = {
+        stats: mockStats,
+        upcomingMeetings: mockUpcomingMeetings,
+        pastMeetings: mockPastMeetings
       }
-      if (response.ok) {
-        const data = await response.json()
-        setDashboardData(data)
-      }
+      setDashboardData(data)
     } catch (error) {
       console.error("Error fetching dashboard data:", error)
     }
@@ -83,12 +82,9 @@ export default function DashboardPage() {
   const refreshCalendarData = useCallback(async () => {
     setIsRefreshing(true)
     try {
-      const response = await fetch("/api/calendar/refresh", {
-        method: "POST",
-      })
-      if (response.ok) {
-        await fetchDashboardData()
-      }
+      // Simulate refresh delay
+      await new Promise(resolve => setTimeout(resolve, 1000))
+      await fetchDashboardData()
     } catch (error) {
       console.error("Error refreshing calendar data:", error)
     } finally {
@@ -99,32 +95,12 @@ export default function DashboardPage() {
   useEffect(() => {
     const checkAuthAndSetup = async () => {
       try {
-        // Check authentication
-        const { data: userData, error: authError } = await supabase.auth.getUser()
-
-        if (authError || !userData?.user) {
-          router.push("/auth/login")
-          return
-        }
-
-        setUser({ email: userData.user.email || "" })
-
-        // Check setup status
-        const setupResponse = await fetch("/api/user/setup-status")
-        if (setupResponse.status === 401) {
-          router.push("/auth/login")
-          return
-        }
-
-        if (setupResponse.ok) {
-          const { setupCompleted: isSetupCompleted } = await setupResponse.json()
-          setSetupCompleted(isSetupCompleted)
-
-          // If setup is completed, fetch dashboard data
-          if (isSetupCompleted) {
-            await fetchDashboardData()
-          }
-        }
+        // Use mock user data
+        setUser({ email: mockUser.email, name: mockUser.name })
+        setSetupCompleted(true)
+        
+        // Load mock dashboard data
+        await fetchDashboardData()
       } catch (error) {
         console.error("Error checking auth and setup:", error)
       } finally {
@@ -175,7 +151,7 @@ export default function DashboardPage() {
   }
 
   return (
-    <MainLayout user={user}>
+    <MainLayout>
       <div className="space-y-6">
         <div className="flex items-center justify-between">
           <div>

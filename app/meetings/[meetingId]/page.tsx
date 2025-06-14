@@ -154,7 +154,7 @@ export default function MeetingDetailPage() {
   }
 
   return (
-    <MainLayout user={user}>
+    <MainLayout>
       <div className="space-y-6">
         {/* Header */}
         <div className="flex items-center justify-between">

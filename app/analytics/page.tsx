@@ -103,7 +103,7 @@ export default function AnalyticsPage() {
   }
 
   return (
-    <MainLayout user={user}>
+    <MainLayout>
       <div className="space-y-6">
         {/* Header */}
         <div>

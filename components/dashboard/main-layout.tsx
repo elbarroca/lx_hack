@@ -16,15 +16,9 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
+import { mockUser } from "@/lib/mock-data"
 
-interface MainLayoutProps {
-  children: React.ReactNode
-  user: {
-    email: string
-  }
-}
-
-export default function MainLayout({ children, user }: MainLayoutProps) {
+export default function MainLayout({ children }: { children: React.ReactNode }) {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false)
   const router = useRouter()
   const supabase = createClient()
@@ -32,6 +26,15 @@ export default function MainLayout({ children, user }: MainLayoutProps) {
   const handleLogout = async () => {
     await supabase.auth.signOut()
     router.push("/auth/login")
+  }
+
+  // Use mock user data for display
+  const displayUser = {
+    name: mockUser.name,
+    email: mockUser.email,
+    role: mockUser.role,
+    company: mockUser.company,
+    avatar: mockUser.avatar
   }
 
   const navItems = [
@@ -69,10 +72,11 @@ export default function MainLayout({ children, user }: MainLayoutProps) {
         <div className="p-4 border-t border-gray-800">
           <div className="flex items-center">
             <div className="w-8 h-8 rounded-full bg-green-500/20 flex items-center justify-center text-green-500 font-bold">
-              {user.email.charAt(0).toUpperCase()}
+              {displayUser.avatar}
             </div>
             <div className="ml-3">
-              <p className="text-sm font-medium truncate">{user.email}</p>
+              <p className="text-sm font-medium">{displayUser.name}</p>
+              <p className="text-xs text-gray-400 truncate">{displayUser.role}</p>
             </div>
           </div>
         </div>
@@ -118,10 +122,11 @@ export default function MainLayout({ children, user }: MainLayoutProps) {
         <div className="p-4 border-t border-gray-800">
           <div className="flex items-center">
             <div className="w-8 h-8 rounded-full bg-green-500/20 flex items-center justify-center text-green-500 font-bold">
-              {user.email.charAt(0).toUpperCase()}
+              {displayUser.avatar}
             </div>
             <div className="ml-3">
-              <p className="text-sm font-medium truncate">{user.email}</p>
+              <p className="text-sm font-medium">{displayUser.name}</p>
+              <p className="text-xs text-gray-400 truncate">{displayUser.role}</p>
             </div>
           </div>
         </div>
@@ -153,17 +158,19 @@ export default function MainLayout({ children, user }: MainLayoutProps) {
                 <DropdownMenuTrigger asChild>
                   <Button variant="ghost" className="relative h-8 w-8 rounded-full">
                     <div className="w-8 h-8 rounded-full bg-green-500/20 flex items-center justify-center text-green-500 font-bold">
-                      {user.email.charAt(0).toUpperCase()}
+                      {displayUser.avatar}
                     </div>
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end" className="w-56 bg-gray-900 border-gray-800">
                   <div className="flex items-center justify-start gap-2 p-2">
                     <div className="w-8 h-8 rounded-full bg-green-500/20 flex items-center justify-center text-green-500 font-bold">
-                      {user.email.charAt(0).toUpperCase()}
+                      {displayUser.avatar}
                     </div>
                     <div className="flex flex-col space-y-1 leading-none">
-                      <p className="font-medium text-sm text-white">{user.email}</p>
+                      <p className="font-medium text-sm text-white">{displayUser.name}</p>
+                      <p className="text-xs text-gray-400">{displayUser.role}</p>
+                      <p className="text-xs text-gray-500">{displayUser.company}</p>
                     </div>
                   </div>
                   <DropdownMenuSeparator />

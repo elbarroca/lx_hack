@@ -51,7 +51,7 @@ export default function Settings() {
   }
 
   return (
-    <MainLayout user={user}>
+    <MainLayout>
       <SettingsPage />
     </MainLayout>
   )

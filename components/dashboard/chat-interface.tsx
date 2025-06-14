@@ -7,6 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { MessageSquare, Send, Bot, User } from "lucide-react"
+import { mockChatMessages } from "@/lib/mock-data"
 
 interface Message {
   id: string
@@ -16,15 +17,7 @@ interface Message {
 }
 
 export default function ChatInterface() {
-  const [messages, setMessages] = useState<Message[]>([
-    {
-      id: "1",
-      content:
-        "Hello! I'm your Veritas AI assistant. I can help you analyze your meetings, find action items, or answer questions about your meeting data. What would you like to know?",
-      sender: "ai",
-      timestamp: new Date(),
-    },
-  ])
+  const [messages, setMessages] = useState<Message[]>(mockChatMessages)
   const [inputValue, setInputValue] = useState("")
   const [isLoading, setIsLoading] = useState(false)
 
@@ -39,21 +32,52 @@ export default function ChatInterface() {
     }
 
     setMessages((prev) => [...prev, userMessage])
+    const currentInput = inputValue
     setInputValue("")
     setIsLoading(true)
 
-    // Simulate AI response
-    setTimeout(() => {
+    try {
+      // Make API call to the chat endpoint
+      const response = await fetch('/api/chat', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          message: currentInput,
+          conversationHistory: messages.slice(-10) // Send last 10 messages for context
+        }),
+      })
+
+      if (!response.ok) {
+        throw new Error('Failed to get response')
+      }
+
+      const data = await response.json()
+      
       const aiMessage: Message = {
         id: (Date.now() + 1).toString(),
-        content:
-          "I understand you're asking about your meetings. Let me analyze your recent data and provide insights...",
+        content: data.response,
         sender: "ai",
         timestamp: new Date(),
       }
+      
       setMessages((prev) => [...prev, aiMessage])
+    } catch (error) {
+      console.error('Chat error:', error)
+      
+      // Fallback message if API fails
+      const fallbackMessage: Message = {
+        id: (Date.now() + 1).toString(),
+        content: "🚀 **Connection Issue**\n\nI'm having trouble connecting right now, but I'm still here to help with your crypto portfolio and meetings. Please try again in a moment!",
+        sender: "ai",
+        timestamp: new Date(),
+      }
+      
+      setMessages((prev) => [...prev, fallbackMessage])
+    } finally {
       setIsLoading(false)
-    }, 1000)
+    }
   }
 
   const handleKeyPress = (e: React.KeyboardEvent) => {
@@ -61,6 +85,13 @@ export default function ChatInterface() {
       e.preventDefault()
       handleSendMessage()
     }
+  }
+
+  const formatMessageContent = (content: string) => {
+    // Simple markdown-like formatting for better display
+    return content
+      .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+      .replace(/\n/g, '<br/>')
   }
 
   return (
@@ -94,7 +125,10 @@ export default function ChatInterface() {
                     : "bg-gray-800 border border-gray-700 text-gray-300"
                 }`}
               >
-                <p className="text-sm leading-relaxed">{message.content}</p>
+                <div 
+                  className="text-sm leading-relaxed whitespace-pre-wrap"
+                  dangerouslySetInnerHTML={{ __html: formatMessageContent(message.content) }}
+                />
                 <p className="text-xs text-gray-500 mt-1">
                   {message.timestamp.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
                 </p>
