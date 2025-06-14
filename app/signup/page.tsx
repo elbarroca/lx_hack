@@ -6,9 +6,10 @@ import { createClient } from "@/lib/supabase/client"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import SetupModal from "@/components/dashboard/setup-modal"
-import { Calendar, Chrome, Loader2, Key } from "lucide-react"
+import { Calendar, Chrome, Loader2, Key, ArrowRight } from "lucide-react"
+import Link from "next/link"
 
-export default function LoginPage() {
+export default function SignUpPage() {
   const [isLoading, setIsLoading] = useState(false)
   const [showSetupModal, setShowSetupModal] = useState(false)
   const [checkingAuth, setCheckingAuth] = useState(true)
@@ -18,32 +19,18 @@ export default function LoginPage() {
 
   const error = searchParams.get("error")
 
-  const handlePostLogin = useCallback(async () => {
+  const handlePostSignUp = useCallback(async () => {
     setIsLoading(true)
     try {
-      // Check setup status
-      const response = await fetch("/api/user/setup-status")
-      if (response.ok) {
-        const { setupCompleted } = await response.json()
-
-        if (setupCompleted) {
-          // Setup is complete, redirect to dashboard
-          router.push("/dashboard")
-        } else {
-          // Setup is not complete, show setup modal
-          setShowSetupModal(true)
-        }
-      } else {
-        // If we can't check setup status, assume setup is needed
-        setShowSetupModal(true)
-      }
+      // For new users, always show setup modal
+      setShowSetupModal(true)
     } catch (error) {
-      console.error("Error checking setup status:", error)
+      console.error("Error in post signup:", error)
       setShowSetupModal(true)
     } finally {
       setIsLoading(false)
     }
-  }, [router])
+  }, [])
 
   // Check if user is already logged in
   useEffect(() => {
@@ -54,8 +41,8 @@ export default function LoginPage() {
           data: { user },
         } = await supabase.auth.getUser()
         if (user) {
-          // User is already logged in, check setup status
-          await handlePostLogin()
+          // User is already logged in, redirect to login page to handle setup check
+          router.push("/auth/login")
         }
       } catch (error) {
         console.error("Error checking auth:", error)
@@ -64,7 +51,7 @@ export default function LoginPage() {
       }
     }
     checkAuth()
-  }, [handlePostLogin, supabase.auth])
+  }, [router, supabase.auth])
 
   // Listen for auth state changes (when user returns from Google OAuth)
   useEffect(() => {
@@ -72,14 +59,14 @@ export default function LoginPage() {
       data: { subscription },
     } = supabase.auth.onAuthStateChange(async (event, session) => {
       if (event === "SIGNED_IN" && session) {
-        await handlePostLogin()
+        await handlePostSignUp()
       }
     })
 
     return () => subscription.unsubscribe()
-  }, [handlePostLogin, supabase.auth])
+  }, [handlePostSignUp, supabase.auth])
 
-  const handleGoogleLogin = async () => {
+  const handleGoogleSignUp = async () => {
     setIsLoading(true)
     try {
       const { error } = await supabase.auth.signInWithOAuth({
@@ -94,7 +81,7 @@ export default function LoginPage() {
         throw error
       }
     } catch (error) {
-      console.error("Login error:", error)
+      console.error("Sign up error:", error)
       setIsLoading(false)
     }
   }
@@ -120,7 +107,7 @@ export default function LoginPage() {
       <div className="min-h-screen flex items-center justify-center bg-black">
         <div className="text-center">
           <Loader2 className="h-8 w-8 text-green-500 animate-spin mx-auto mb-4" />
-          <p className="text-gray-400">Connecting to Google...</p>
+          <p className="text-gray-400">Creating your account...</p>
         </div>
       </div>
     )
@@ -134,9 +121,9 @@ export default function LoginPage() {
             <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-green-500/20">
               <Calendar className="h-6 w-6 text-green-500" />
             </div>
-            <CardTitle className="text-2xl font-bold text-white">Welcome to Veritas AI</CardTitle>
+            <CardTitle className="text-2xl font-bold text-white">Join Veritas AI</CardTitle>
             <CardDescription className="text-gray-400">
-              Connect your Google Calendar to start capturing meeting intelligence
+              Start capturing intelligent meeting insights with your Google Calendar
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-6">
@@ -147,42 +134,56 @@ export default function LoginPage() {
                 {error === "access_denied" && "Access was denied. Please grant calendar permissions."}
                 {error &&
                   !["oauth_failed", "no_code", "access_denied"].includes(error) &&
-                  "An error occurred during login."}
+                  "An error occurred during sign up."}
               </div>
             )}
 
             <Button
-              onClick={handleGoogleLogin}
+              onClick={handleGoogleSignUp}
               disabled={isLoading}
               className="w-full h-12 text-base font-medium bg-green-500 hover:bg-green-600 text-black"
               size="lg"
             >
               <Chrome className="mr-2 h-5 w-5" />
-              {isLoading ? "Connecting..." : "Continue with Google Calendar"}
+              {isLoading ? "Creating Account..." : "Sign Up with Google Calendar"}
             </Button>
 
             <div className="text-center text-sm text-gray-400">
-              <p className="mb-3">We'll access your calendar to:</p>
+              <p className="mb-3">What you'll get:</p>
               <ul className="space-y-2 text-xs text-gray-500">
                 <li className="flex items-center justify-center gap-2">
                   <div className="w-1 h-1 bg-green-500 rounded-full"></div>
-                  View your upcoming meetings
+                  Autonomous AI agents in your meetings
                 </li>
                 <li className="flex items-center justify-center gap-2">
                   <div className="w-1 h-1 bg-green-500 rounded-full"></div>
-                  Sync meeting details automatically
+                  Intelligent summaries and action items
                 </li>
                 <li className="flex items-center justify-center gap-2">
                   <div className="w-1 h-1 bg-green-500 rounded-full"></div>
-                  Deploy AI agents to capture insights
+                  Verifiable meeting transcripts
+                </li>
+                <li className="flex items-center justify-center gap-2">
+                  <div className="w-1 h-1 bg-green-500 rounded-full"></div>
+                  Complete accountability tracking
                 </li>
               </ul>
             </div>
 
             <div className="border-t border-gray-800 pt-4">
-              <div className="flex items-center justify-center gap-2 text-xs text-gray-500">
+              <div className="flex items-center justify-center gap-2 text-xs text-gray-500 mb-4">
                 <Key className="w-3 h-3" />
-                <span>After signing in, you'll configure your AI agent settings</span>
+                <span>Next: Configure your AI agent with API keys</span>
+              </div>
+
+              <div className="text-center">
+                <p className="text-sm text-gray-400 mb-2">Already have an account?</p>
+                <Link href="/auth/login">
+                  <Button variant="ghost" className="text-green-500 hover:text-green-400 hover:bg-green-500/10">
+                    Sign in instead
+                    <ArrowRight className="w-4 h-4 ml-1" />
+                  </Button>
+                </Link>
               </div>
             </div>
           </CardContent>
