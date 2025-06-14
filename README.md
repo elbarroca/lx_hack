@@ -2,6 +2,13 @@
 
 # Veritas AI - your personal meeting assistant 🤖
 
+## 🎥 Demo Video
+
+Watch Veritas AI in action:
+
+[![Veritas AI Demo](https://img.shields.io/badge/Watch-Demo_Video-red?logo=loom&logoColor=white)](https://www.loom.com/share/b1374c700e8243ee9e7181b0cf0e2d50)
+
+
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)  
 [![Tech: LLM Agent](https://img.shields.io/badge/Tech-LLM_Agent-blueviolet)](https://openai.com)  
 [![Platform: Vexa AI](https://img.shields.io/badge/Transcription-Vexa_AI-orange)](https://vexa.ai/)
