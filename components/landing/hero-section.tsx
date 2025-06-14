@@ -52,12 +52,12 @@ export default function HeroSection({ isLoggedIn }: HeroSectionProps) {
               transition={{ duration: 0.6, delay: 0.4 }}
             >
               {isLoggedIn ? (
-                <Link href="/dashboard">
+                <Link href="/auth/login">
                   <Button
                     size="lg"
                     className="bg-green-500 hover:bg-green-600 text-black font-medium px-8 py-6 text-lg"
                   >
-                    Go to Dashboard
+                    Get Started
                   </Button>
                 </Link>
               ) : (

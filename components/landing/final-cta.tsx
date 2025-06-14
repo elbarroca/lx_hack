@@ -19,8 +19,8 @@ export default function FinalCTA({ isLoggedIn }: FinalCTAProps) {
 
         {isLoggedIn ? (
           <div className="flex justify-center">
-            <Button onClick={() => redirect("/dashboard")} size="lg" className="bg-green-500 hover:bg-green-600 text-black font-medium px-8 py-6 text-lg">
-              Go to Dashboard
+            <Button onClick={() => redirect("/auth/login")} size="lg" className="bg-green-500 hover:bg-green-600 text-black font-medium px-8 py-6 text-lg">
+              Get Started
             </Button>
           </div>
         ) : (
