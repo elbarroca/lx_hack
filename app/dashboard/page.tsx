@@ -1,8 +1,6 @@
 "use client"
 
 import { useEffect, useState, useCallback } from "react"
-import { createClient } from "@/lib/supabase/client"
-import { useRouter } from "next/navigation"
 import MainLayout from "@/components/dashboard/main-layout"
 import StatsBar from "@/components/dashboard/stats-bar"
 import UpcomingMeetingsTable from "@/components/dashboard/upcoming-meetings-table"
@@ -62,8 +60,6 @@ export default function DashboardPage() {
   const [dashboardData, setDashboardData] = useState<DashboardData | null>(null)
   const [isLoading, setIsLoading] = useState(true)
   const [isRefreshing, setIsRefreshing] = useState(false)
-  const router = useRouter()
-  const supabase = createClient()
 
   const fetchDashboardData = useCallback(async () => {
     try {
@@ -77,7 +73,7 @@ export default function DashboardPage() {
     } catch (error) {
       console.error("Error fetching dashboard data:", error)
     }
-  }, [router])
+  }, [])
 
   const refreshCalendarData = useCallback(async () => {
     setIsRefreshing(true)
@@ -109,7 +105,7 @@ export default function DashboardPage() {
     }
 
     checkAuthAndSetup()
-  }, [router, supabase.auth, fetchDashboardData])
+  }, [fetchDashboardData])
 
   const handleSetupComplete = async () => {
     setSetupCompleted(true)
