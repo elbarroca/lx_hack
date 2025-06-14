@@ -1,26 +1,95 @@
-import { createClient } from "@/lib/supabase/server"
 import { NextResponse } from "next/server"
+import { createClient } from "@/lib/supabase/server"
 
 export async function POST() {
-  const supabase = await createClient()
-
-  // Check if user is authenticated
-  const { data: userData, error: authError } = await supabase.auth.getUser()
-
-  if (authError || !userData?.user) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
-  }
-
   try {
-    // This endpoint can be used to trigger a manual refresh of calendar data
-    // In a real implementation, you might want to:
-    // 1. Refresh the Google access token if needed
-    // 2. Sync calendar events to your database
-    // 3. Update any cached data
+    const supabase = await createClient()
 
-    return NextResponse.json({ success: true, message: "Calendar data refreshed" })
+    // Get the authenticated user
+    const { data: { user }, error: authError } = await supabase.auth.getUser()
+    
+    if (authError || !user) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+    }
+
+    // Get the user's Google access token from the session
+    const { data: { session } } = await supabase.auth.getSession()
+    
+    if (!session?.provider_token) {
+      return NextResponse.json({ error: "No Google access token found" }, { status: 401 })
+    }
+
+    // Fetch fresh calendar events
+    const now = new Date()
+    const oneMonthFromNow = new Date(now.getTime() + 30 * 24 * 60 * 60 * 1000)
+    const thirtyDaysAgo = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000)
+    
+    // Fetch upcoming events
+    const upcomingResponse = await fetch(
+      `https://www.googleapis.com/calendar/v3/calendars/primary/events?` +
+      `timeMin=${now.toISOString()}&` +
+      `timeMax=${oneMonthFromNow.toISOString()}&` +
+      `singleEvents=true&` +
+      `orderBy=startTime&` +
+      `maxResults=50`,
+      {
+        headers: {
+          'Authorization': `Bearer ${session.provider_token}`,
+          'Content-Type': 'application/json',
+        },
+      }
+    )
+
+    // Fetch past events
+    const pastResponse = await fetch(
+      `https://www.googleapis.com/calendar/v3/calendars/primary/events?` +
+      `timeMin=${thirtyDaysAgo.toISOString()}&` +
+      `timeMax=${now.toISOString()}&` +
+      `singleEvents=true&` +
+      `orderBy=startTime&` +
+      `maxResults=50`,
+      {
+        headers: {
+          'Authorization': `Bearer ${session.provider_token}`,
+          'Content-Type': 'application/json',
+        },
+      }
+    )
+
+    if (!upcomingResponse.ok && !pastResponse.ok) {
+      return NextResponse.json({ 
+        error: "Failed to refresh calendar events" 
+      }, { status: 500 })
+    }
+
+    let upcomingEvents = []
+    let pastEvents = []
+
+    if (upcomingResponse.ok) {
+      const upcomingData = await upcomingResponse.json()
+      upcomingEvents = upcomingData.items || []
+    }
+
+    if (pastResponse.ok) {
+      const pastData = await pastResponse.json()
+      pastEvents = pastData.items || []
+    }
+
+    // Here you could save the events to your database if needed
+    // For now, we'll just return success
+
+    return NextResponse.json({ 
+      success: true,
+      message: "Calendar data refreshed successfully",
+      upcomingCount: upcomingEvents.length,
+      pastCount: pastEvents.length
+    })
+
   } catch (error) {
-    console.error("Error refreshing calendar data:", error)
-    return NextResponse.json({ error: "Failed to refresh calendar data" }, { status: 500 })
+    console.error("Calendar refresh error:", error)
+    return NextResponse.json(
+      { error: "Internal server error" },
+      { status: 500 }
+    )
   }
 }

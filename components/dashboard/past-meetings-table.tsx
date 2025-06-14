@@ -1,11 +1,9 @@
 "use client"
 
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
-import { format } from "date-fns"
-import { Users, MapPin, Video, FileText, ArrowRight } from "lucide-react"
-import Link from "next/link"
+import { Badge } from "@/components/ui/badge"
+import { Calendar, Clock, Users, Eye, FileText, Video } from "lucide-react"
 
 interface CalendarEvent {
   id: string
@@ -45,16 +43,22 @@ interface PastMeetingsTableProps {
 }
 
 export default function PastMeetingsTable({ meetings }: PastMeetingsTableProps) {
-  const getAttendeeCount = (meeting: CalendarEvent) => {
-    return meeting.attendees?.length || 0
+  const formatDate = (dateString: string) => {
+    const date = new Date(dateString)
+    return date.toLocaleDateString("en-US", {
+      month: "short",
+      day: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+    })
   }
 
-  const getDuration = (meeting: CalendarEvent) => {
-    const start = new Date(meeting.start.dateTime)
-    const end = new Date(meeting.end.dateTime)
-    const durationMs = end.getTime() - start.getTime()
+  const formatDuration = (start: string, end: string) => {
+    const startDate = new Date(start)
+    const endDate = new Date(end)
+    const durationMs = endDate.getTime() - startDate.getTime()
     const durationMinutes = Math.round(durationMs / (1000 * 60))
-
+    
     if (durationMinutes < 60) {
       return `${durationMinutes}m`
     } else {
@@ -64,122 +68,105 @@ export default function PastMeetingsTable({ meetings }: PastMeetingsTableProps) 
     }
   }
 
-  // Mock function to check if meeting has analysis
-  const hasAnalysis = (meetingId: string) => {
-    // In real implementation, this would check if the meeting has been processed
-    return Math.random() > 0.3 // 70% chance of having analysis
+  const getTimeAgo = (dateString: string) => {
+    const now = new Date()
+    const meetingDate = new Date(dateString)
+    const diffMs = now.getTime() - meetingDate.getTime()
+    const diffHours = Math.round(diffMs / (1000 * 60 * 60))
+    
+    if (diffHours < 1) {
+      const diffMinutes = Math.round(diffMs / (1000 * 60))
+      return diffMinutes <= 0 ? "Just ended" : `${diffMinutes}m ago`
+    } else if (diffHours < 24) {
+      return `${diffHours}h ago`
+    } else {
+      const diffDays = Math.round(diffHours / 24)
+      return `${diffDays}d ago`
+    }
+  }
+
+  const handleReviewMeeting = (meetingId: string) => {
+    // TODO: Navigate to meeting review page
+    console.log("Review meeting:", meetingId)
   }
 
   return (
-    <Card className="bg-gray-900 border-gray-800">
-      <CardHeader className="pb-3">
-        <CardTitle className="text-xl font-semibold flex items-center gap-2">
-          <FileText className="w-5 h-5 text-green-500" />
+    <Card>
+      <CardHeader>
+        <CardTitle className="flex items-center gap-2">
+          <Calendar className="h-5 w-5" />
           Past Meetings
         </CardTitle>
-        <p className="text-sm text-gray-400">{meetings.length} recent meetings</p>
+        <CardDescription>Your completed meetings from Google Calendar</CardDescription>
       </CardHeader>
       <CardContent>
         {meetings.length === 0 ? (
-          <div className="text-center py-8 text-gray-400">
-            <FileText className="w-12 h-12 mx-auto mb-4 opacity-50" />
-            <p className="text-lg">No past meetings</p>
-            <p className="text-sm">Meeting history will appear here</p>
+          <div className="text-center py-8">
+            <Calendar className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+            <p className="text-gray-500">No past meetings</p>
+            <p className="text-sm text-gray-400">Your meeting history will appear here</p>
           </div>
         ) : (
           <div className="space-y-4">
-            {meetings.map((meeting) => {
-              const attendeeCount = getAttendeeCount(meeting)
-              const duration = getDuration(meeting)
-              const hasAIAnalysis = hasAnalysis(meeting.id)
-
-              return (
-                <div
-                  key={meeting.id}
-                  className="p-4 bg-gray-800 rounded-lg border border-gray-700 hover:border-gray-600 transition-colors"
-                >
-                  <div className="flex items-start justify-between mb-3">
-                    <div className="flex-1">
-                      <h3 className="font-medium text-white mb-1">{meeting.summary}</h3>
-                      <p className="text-sm text-gray-400">
-                        {format(new Date(meeting.start.dateTime), "MMM d, yyyy • h:mm a")} • {duration}
-                      </p>
+            {meetings.map((meeting) => (
+              <div
+                key={meeting.id}
+                className="flex items-center justify-between p-4 border border-gray-800 rounded-lg bg-gray-900/50"
+              >
+                <div className="flex-1">
+                  <div className="flex items-center gap-2 mb-2">
+                    <h4 className="font-medium text-white">{meeting.summary}</h4>
+                    <Badge variant="outline" className="text-xs">
+                      {getTimeAgo(meeting.end.dateTime)}
+                    </Badge>
+                  </div>
+                  
+                  <div className="flex items-center gap-4 text-sm text-gray-400">
+                    <div className="flex items-center gap-1">
+                      <Clock className="h-3 w-3" />
+                      {formatDate(meeting.start.dateTime)}
                     </div>
-                    <div className="flex items-center gap-2">
-                      {hasAIAnalysis ? (
-                        <Link href={`/meetings/${meeting.id}`}>
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            className="bg-green-500/20 text-green-500 hover:bg-green-500/30"
-                          >
-                            <FileText className="w-4 h-4 mr-1" />
-                            View Analysis
-                            <ArrowRight className="w-4 h-4 ml-1" />
-                          </Button>
-                        </Link>
-                      ) : (
-                        <Badge variant="outline" className="bg-yellow-500/20 text-yellow-500 border-yellow-500/30">
-                          Processing...
-                        </Badge>
-                      )}
+                    <div className="flex items-center gap-1">
+                      <span>Duration: {formatDuration(meeting.start.dateTime, meeting.end.dateTime)}</span>
                     </div>
+                    {meeting.attendees && (
+                      <div className="flex items-center gap-1">
+                        <Users className="h-3 w-3" />
+                        {meeting.attendees.length} attendees
+                      </div>
+                    )}
                   </div>
 
-                  {meeting.description && (
-                    <p className="text-sm text-gray-400 mb-3 line-clamp-2">{meeting.description}</p>
+                  {meeting.location && (
+                    <p className="text-xs text-gray-500 mt-1">📍 {meeting.location}</p>
                   )}
 
-                  <div className="flex items-center gap-4 text-sm text-gray-400 mb-3">
-                    {attendeeCount > 0 && (
-                      <div className="flex items-center gap-1">
-                        <Users className="w-4 h-4" />
-                        <span>{attendeeCount} attendees</span>
-                      </div>
-                    )}
-
-                    {meeting.location && (
-                      <div className="flex items-center gap-1">
-                        <MapPin className="w-4 h-4" />
-                        <span className="truncate max-w-32">{meeting.location}</span>
-                      </div>
-                    )}
-
-                    {meeting.conferenceData && (
-                      <div className="flex items-center gap-1">
-                        <Video className="w-4 h-4" />
-                        <span>Video call</span>
-                      </div>
-                    )}
-                  </div>
-
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-2">
-                      <Badge
-                        variant="outline"
-                        className={`${
-                          meeting.organizer.self
-                            ? "bg-blue-500/20 text-blue-500 border-blue-500/30"
-                            : "bg-gray-700 text-gray-300 border-gray-600"
-                        }`}
-                      >
-                        {meeting.organizer.self ? "Organized" : "Attended"}
-                      </Badge>
-
-                      {hasAIAnalysis && (
-                        <Badge className="bg-green-500/20 text-green-500 border-green-500/30">AI Analyzed</Badge>
-                      )}
-                    </div>
-
-                    {hasAIAnalysis && (
-                      <div className="text-xs text-gray-500">
-                        <span>3 action items • Positive sentiment</span>
-                      </div>
-                    )}
+                  {/* Mock indicators for AI processing */}
+                  <div className="flex items-center gap-2 mt-2">
+                    <Badge variant="outline" className="text-xs">
+                      <FileText className="h-3 w-3 mr-1" />
+                      Transcript Available
+                    </Badge>
+                    <Badge variant="outline" className="text-xs">
+                      <Video className="h-3 w-3 mr-1" />
+                      Recording Ready
+                    </Badge>
                   </div>
                 </div>
-              )
-            })}
+
+                <div className="flex items-center gap-2">
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={() => handleReviewMeeting(meeting.id)}
+                    className="border-green-500/30 text-green-500 hover:bg-green-500/10"
+                  >
+                    <Eye className="h-3 w-3 mr-1" />
+                    Review
+                  </Button>
+                </div>
+              </div>
+            ))}
           </div>
         )}
       </CardContent>

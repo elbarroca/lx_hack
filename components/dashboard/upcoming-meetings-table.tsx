@@ -1,11 +1,9 @@
 "use client"
 
-import { useState } from "react"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
-import { format, formatDistanceToNow } from "date-fns"
-import { Calendar, Users, MapPin, Video, Shield, ShieldOff, ExternalLink } from "lucide-react"
+import { Badge } from "@/components/ui/badge"
+import { Calendar, Clock, Users, ExternalLink } from "lucide-react"
 
 interface CalendarEvent {
   id: string
@@ -45,157 +43,121 @@ interface UpcomingMeetingsTableProps {
 }
 
 export default function UpcomingMeetingsTable({ meetings }: UpcomingMeetingsTableProps) {
-  const [armedMeetings, setArmedMeetings] = useState<Set<string>>(new Set())
+  const formatDate = (dateString: string) => {
+    const date = new Date(dateString)
+    return date.toLocaleDateString("en-US", {
+      month: "short",
+      day: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+    })
+  }
 
-  const toggleArmed = async (meetingId: string) => {
-    try {
-      const response = await fetch(`/api/meetings/${meetingId}/arm`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          armed: !armedMeetings.has(meetingId),
-        }),
-      })
-
-      if (response.ok) {
-        setArmedMeetings((prev) => {
-          const newSet = new Set(prev)
-          if (newSet.has(meetingId)) {
-            newSet.delete(meetingId)
-          } else {
-            newSet.add(meetingId)
-          }
-          return newSet
-        })
-      }
-    } catch (error) {
-      console.error("Error toggling meeting armed status:", error)
+  const formatDuration = (start: string, end: string) => {
+    const startDate = new Date(start)
+    const endDate = new Date(end)
+    const durationMs = endDate.getTime() - startDate.getTime()
+    const durationMinutes = Math.round(durationMs / (1000 * 60))
+    
+    if (durationMinutes < 60) {
+      return `${durationMinutes}m`
+    } else {
+      const hours = Math.floor(durationMinutes / 60)
+      const minutes = durationMinutes % 60
+      return minutes > 0 ? `${hours}h ${minutes}m` : `${hours}h`
     }
   }
 
-  const getVideoLink = (meeting: CalendarEvent) => {
-    return meeting.conferenceData?.entryPoints?.find((entry) => entry.entryPointType === "video")?.uri
+  const getTimeUntilMeeting = (dateString: string) => {
+    const now = new Date()
+    const meetingDate = new Date(dateString)
+    const diffMs = meetingDate.getTime() - now.getTime()
+    const diffHours = Math.round(diffMs / (1000 * 60 * 60))
+    
+    if (diffHours < 1) {
+      const diffMinutes = Math.round(diffMs / (1000 * 60))
+      return diffMinutes <= 0 ? "Starting now" : `${diffMinutes}m`
+    } else if (diffHours < 24) {
+      return `${diffHours}h`
+    } else {
+      const diffDays = Math.round(diffHours / 24)
+      return `${diffDays}d`
+    }
   }
 
-  const getAttendeeCount = (meeting: CalendarEvent) => {
-    return meeting.attendees?.length || 0
+  const handleJoinMeeting = (event: CalendarEvent) => {
+    const meetingUrl = event.conferenceData?.entryPoints?.[0]?.uri
+    if (meetingUrl) {
+      window.open(meetingUrl, "_blank")
+    }
   }
 
   return (
-    <Card className="bg-gray-900 border-gray-800">
-      <CardHeader className="pb-3">
-        <CardTitle className="text-xl font-semibold flex items-center gap-2">
-          <Calendar className="w-5 h-5 text-green-500" />
+    <Card>
+      <CardHeader>
+        <CardTitle className="flex items-center gap-2">
+          <Calendar className="h-5 w-5" />
           Upcoming Meetings
         </CardTitle>
-        <p className="text-sm text-gray-400">{meetings.length} meetings scheduled</p>
+        <CardDescription>Your scheduled meetings from Google Calendar</CardDescription>
       </CardHeader>
       <CardContent>
         {meetings.length === 0 ? (
-          <div className="text-center py-8 text-gray-400">
-            <Calendar className="w-12 h-12 mx-auto mb-4 opacity-50" />
-            <p className="text-lg">No upcoming meetings</p>
-            <p className="text-sm">Your calendar is clear for now</p>
+          <div className="text-center py-8">
+            <Calendar className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+            <p className="text-gray-500">No upcoming meetings</p>
+            <p className="text-sm text-gray-400">Your calendar events will appear here</p>
           </div>
         ) : (
           <div className="space-y-4">
-            {meetings.map((meeting) => {
-              const isArmed = armedMeetings.has(meeting.id)
-              const videoLink = getVideoLink(meeting)
-              const attendeeCount = getAttendeeCount(meeting)
-
-              return (
-                <div
-                  key={meeting.id}
-                  className="p-4 bg-gray-800 rounded-lg border border-gray-700 hover:border-gray-600 transition-colors"
-                >
-                  <div className="flex items-start justify-between mb-3">
-                    <div className="flex-1">
-                      <h3 className="font-medium text-white mb-1">{meeting.summary}</h3>
-                      <p className="text-sm text-gray-400">
-                        {format(new Date(meeting.start.dateTime), "MMM d, yyyy • h:mm a")} -{" "}
-                        {format(new Date(meeting.end.dateTime), "h:mm a")}
-                      </p>
-                      <p className="text-xs text-gray-500 mt-1">
-                        Starts {formatDistanceToNow(new Date(meeting.start.dateTime), { addSuffix: true })}
-                      </p>
+            {meetings.map((meeting) => (
+              <div
+                key={meeting.id}
+                className="flex items-center justify-between p-4 border border-gray-800 rounded-lg bg-gray-900/50"
+              >
+                <div className="flex-1">
+                  <div className="flex items-center gap-2 mb-2">
+                    <h4 className="font-medium text-white">{meeting.summary}</h4>
+                    <Badge variant="outline" className="text-xs">
+                      {getTimeUntilMeeting(meeting.start.dateTime)}
+                    </Badge>
+                  </div>
+                  
+                  <div className="flex items-center gap-4 text-sm text-gray-400">
+                    <div className="flex items-center gap-1">
+                      <Clock className="h-3 w-3" />
+                      {formatDate(meeting.start.dateTime)}
                     </div>
-                    <div className="flex items-center gap-2">
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => toggleArmed(meeting.id)}
-                        className={`${
-                          isArmed
-                            ? "bg-green-500/20 text-green-500 hover:bg-green-500/30"
-                            : "bg-gray-700 text-gray-300 hover:bg-gray-600"
-                        }`}
-                      >
-                        {isArmed ? <Shield className="w-4 h-4" /> : <ShieldOff className="w-4 h-4" />}
-                        {isArmed ? "Armed" : "Arm"}
-                      </Button>
+                    <div className="flex items-center gap-1">
+                      <span>Duration: {formatDuration(meeting.start.dateTime, meeting.end.dateTime)}</span>
                     </div>
+                    {meeting.attendees && (
+                      <div className="flex items-center gap-1">
+                        <Users className="h-3 w-3" />
+                        {meeting.attendees.length} attendees
+                      </div>
+                    )}
                   </div>
 
-                  {meeting.description && (
-                    <p className="text-sm text-gray-400 mb-3 line-clamp-2">{meeting.description}</p>
+                  {meeting.location && (
+                    <p className="text-xs text-gray-500 mt-1">📍 {meeting.location}</p>
                   )}
-
-                  <div className="flex items-center gap-4 text-sm text-gray-400 mb-3">
-                    {attendeeCount > 0 && (
-                      <div className="flex items-center gap-1">
-                        <Users className="w-4 h-4" />
-                        <span>{attendeeCount} attendees</span>
-                      </div>
-                    )}
-
-                    {meeting.location && (
-                      <div className="flex items-center gap-1">
-                        <MapPin className="w-4 h-4" />
-                        <span className="truncate max-w-32">{meeting.location}</span>
-                      </div>
-                    )}
-
-                    {videoLink && (
-                      <div className="flex items-center gap-1">
-                        <Video className="w-4 h-4" />
-                        <span>Video call</span>
-                      </div>
-                    )}
-                  </div>
-
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-2">
-                      <Badge
-                        variant="outline"
-                        className={`${
-                          meeting.organizer.self
-                            ? "bg-blue-500/20 text-blue-500 border-blue-500/30"
-                            : "bg-gray-700 text-gray-300 border-gray-600"
-                        }`}
-                      >
-                        {meeting.organizer.self ? "Organizer" : "Attendee"}
-                      </Badge>
-
-                      {isArmed && (
-                        <Badge className="bg-green-500/20 text-green-500 border-green-500/30">AI Agent Ready</Badge>
-                      )}
-                    </div>
-
-                    {videoLink && (
-                      <Button variant="ghost" size="sm" asChild>
-                        <a href={videoLink} target="_blank" rel="noopener noreferrer">
-                          <ExternalLink className="w-4 h-4 mr-1" />
-                          Join
-                        </a>
-                      </Button>
-                    )}
-                  </div>
                 </div>
-              )
-            })}
+
+                <div className="flex items-center gap-2">
+                  {meeting.conferenceData?.entryPoints?.[0]?.uri && (
+                    <Button
+                      size="sm"
+                      onClick={() => handleJoinMeeting(meeting)}
+                      className="bg-green-500 hover:bg-green-600 text-black"
+                    >
+                      <ExternalLink className="h-3 w-3 mr-1" />
+                      Join
+                    </Button>
+                  )}
+                </div>
+              </div>
+            ))}
           </div>
         )}
       </CardContent>

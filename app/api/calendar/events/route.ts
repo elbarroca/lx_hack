@@ -1,55 +1,97 @@
-import { createClient } from "@/lib/supabase/server"
 import { NextResponse } from "next/server"
+import { createClient } from "@/lib/supabase/server"
 
 export async function GET() {
-  const supabase = await createClient()
-
-  // Check if user is authenticated
-  const { data: userData, error: authError } = await supabase.auth.getUser()
-
-  if (authError || !userData?.user) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
-  }
-
   try {
-    // Get the user's Google access token from the session
-    const { data: session } = await supabase.auth.getSession()
+    const supabase = await createClient()
 
-    if (!session?.session?.provider_token) {
+    // Get the authenticated user
+    const { data: { user }, error: authError } = await supabase.auth.getUser()
+    
+    if (authError || !user) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+    }
+
+    // Get the user's Google access token from the session
+    const { data: { session } } = await supabase.auth.getSession()
+    
+    if (!session?.provider_token) {
       return NextResponse.json({ error: "No Google access token found" }, { status: 401 })
     }
 
-    const accessToken = session.session.provider_token
-
-    // Calculate time range (past 30 days to next 30 days)
+    // Fetch calendar events from Google Calendar API
     const now = new Date()
-    const pastDate = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000)
-    const futureDate = new Date(now.getTime() + 30 * 24 * 60 * 60 * 1000)
+    const oneMonthFromNow = new Date(now.getTime() + 30 * 24 * 60 * 60 * 1000)
+    
+    const calendarResponse = await fetch(
+      `https://www.googleapis.com/calendar/v3/calendars/primary/events?` +
+      `timeMin=${now.toISOString()}&` +
+      `timeMax=${oneMonthFromNow.toISOString()}&` +
+      `singleEvents=true&` +
+      `orderBy=startTime&` +
+      `maxResults=50`,
+      {
+        headers: {
+          'Authorization': `Bearer ${session.provider_token}`,
+          'Content-Type': 'application/json',
+        },
+      }
+    )
 
-    const timeMin = pastDate.toISOString()
-    const timeMax = futureDate.toISOString()
-
-    // Fetch events from Google Calendar API
-    const calendarUrl = `https://www.googleapis.com/calendar/v3/calendars/primary/events?timeMin=${timeMin}&timeMax=${timeMax}&singleEvents=true&orderBy=startTime`
-
-    const response = await fetch(calendarUrl, {
-      headers: {
-        Authorization: `Bearer ${accessToken}`,
-        "Content-Type": "application/json",
-      },
-    })
-
-    if (!response.ok) {
-      const errorData = await response.json()
-      console.error("Google Calendar API error:", errorData)
-      return NextResponse.json({ error: "Failed to fetch calendar events" }, { status: response.status })
+    if (!calendarResponse.ok) {
+      const errorText = await calendarResponse.text()
+      console.error('Google Calendar API error:', errorText)
+      return NextResponse.json({ 
+        error: "Failed to fetch calendar events",
+        details: errorText 
+      }, { status: calendarResponse.status })
     }
 
-    const calendarData = await response.json()
+    const calendarData = await calendarResponse.json()
+    
+    // Also fetch past events for the last 30 days
+    const thirtyDaysAgo = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000)
+    
+    const pastEventsResponse = await fetch(
+      `https://www.googleapis.com/calendar/v3/calendars/primary/events?` +
+      `timeMin=${thirtyDaysAgo.toISOString()}&` +
+      `timeMax=${now.toISOString()}&` +
+      `singleEvents=true&` +
+      `orderBy=startTime&` +
+      `maxResults=50`,
+      {
+        headers: {
+          'Authorization': `Bearer ${session.provider_token}`,
+          'Content-Type': 'application/json',
+        },
+      }
+    )
 
-    return NextResponse.json(calendarData)
+    let pastEvents = []
+    if (pastEventsResponse.ok) {
+      const pastEventsData = await pastEventsResponse.json()
+      pastEvents = pastEventsData.items || []
+    }
+
+    // Combine and return all events
+    const allEvents = [
+      ...(pastEvents || []),
+      ...(calendarData.items || [])
+    ]
+
+    return NextResponse.json({
+      kind: calendarData.kind,
+      etag: calendarData.etag,
+      summary: calendarData.summary,
+      timeZone: calendarData.timeZone,
+      items: allEvents
+    })
+
   } catch (error) {
-    console.error("Error fetching calendar events:", error)
-    return NextResponse.json({ error: "Internal server error" }, { status: 500 })
+    console.error("Calendar API error:", error)
+    return NextResponse.json(
+      { error: "Internal server error" },
+      { status: 500 }
+    )
   }
 }

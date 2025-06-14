@@ -1,7 +1,7 @@
 import { createClient } from "@/lib/supabase/server"
 import { NextResponse } from "next/server"
 
-export async function GET() {
+export async function GET(request: Request) {
   const supabase = await createClient()
 
   // Check if user is authenticated
@@ -14,10 +14,10 @@ export async function GET() {
   const userId = userData.user.id
 
   try {
-    // Get Google Calendar events
-    const calendarResponse = await fetch(`${process.env.NEXT_PUBLIC_SITE_URL}/api/calendar/events`, {
+    // Get Google Calendar events from our internal API
+    const calendarResponse = await fetch(`${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/api/calendar/events`, {
       headers: {
-        Authorization: `Bearer ${userData.user.access_token}`,
+        'Cookie': request.headers.get('cookie') || '',
       },
     })
 
@@ -30,10 +30,10 @@ export async function GET() {
 
       // Separate upcoming and past meetings
       upcomingMeetings =
-        calendarData.items?.filter((event: any) => new Date(event.start.dateTime) > now).slice(0, 10) || []
+        calendarData.items?.filter((event: any) => event.start?.dateTime && new Date(event.start.dateTime) > now).slice(0, 10) || []
 
       pastMeetings =
-        calendarData.items?.filter((event: any) => new Date(event.start.dateTime) <= now).slice(0, 10) || []
+        calendarData.items?.filter((event: any) => event.start?.dateTime && new Date(event.start.dateTime) <= now).slice(0, 10) || []
     }
 
     // Calculate stats
